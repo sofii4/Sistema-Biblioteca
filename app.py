@@ -47,6 +47,9 @@ def index():
 
     q = request.args.get('q', '')
     tipo = request.args.get('tipo', 'todos')
+    idioma = request.args.get('idioma', 'todos') 
+    situacao = request.args.get('situacao', 'todos')   
+    cod_chamada = request.args.get('cod_chamada', '')   
     
     query_base = "FROM obras WHERE 1=1"
     params = []
@@ -59,6 +62,19 @@ def index():
     if tipo and tipo != 'todos':
         query_base += " AND tipo = ?"
         params.append(tipo)
+
+    if idioma and idioma != 'todos':
+        query_base += " AND idioma = ?"
+        params.append(idioma)
+
+    if situacao and situacao != 'todos':
+        query_base += " AND situacao = ?"
+        params.append(situacao)
+
+    if cod_chamada:
+        # busca parcial por código de chamada; use '=' se preferir correspondência exata
+        query_base += " AND cod_chamada LIKE ?"
+        params.append(f'%{cod_chamada}%')
     
     conn = get_db_connection()
 
@@ -77,7 +93,10 @@ def index():
                            pagina_atual=pagina, 
                            total_paginas=total_paginas,
                            q=q,
-                           tipo=tipo)
+                           tipo=tipo,
+                           idioma=idioma,
+                           situacao=situacao,
+                           cod_chamada=cod_chamada)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -85,7 +104,7 @@ def login():
         senha = request.form.get('senha')
         if senha == SENHA_RECEPCAO:
             session['usuario_logado'] = True
-            return redirect(url_for('admin')) 
+            return redirect(url_for('index')) 
         else:
             flash('Senha incorreta!')
     return render_template('login.html')

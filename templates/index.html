@@ -8,11 +8,25 @@
     <form action="/" method="GET"
         style="background: #f9f9f9; padding: 20px; border: 1px solid #eee; margin-bottom: 20px;">
         <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 60%;">
+        <input type="text" name="cod_chamada" placeholder="Código de chamada" value="{{ cod_chamada }}">
 
         <select name="tipo">
             <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
             <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
             <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
+        </select>
+
+        <select name="idioma">
+            <option value="todos" {% if idioma=='todos' %}selected{% endif %}>Qualquer idioma</option>
+            <option value="PT" {% if idioma=='Português' %}selected{% endif %}>Português</option>
+            <option value="IN" {% if idioma=='Inglês' %}selected{% endif %}>Inglês</option>
+            <option value="ES" {% if idioma=='Espanhol' %}selected{% endif %}>Espanhol</option>
+        </select>
+
+        <select name="situacao">
+            <option value="todos" {% if situacao=='todos' %}selected{% endif %}>Qualquer situação</option>
+            <option value="disponivel" {% if situacao=='disponivel' %}selected{% endif %}>Disponível</option>
+            <option value="emprestado" {% if situacao=='emprestado' %}selected{% endif %}>Emprestado</option>
         </select>
 
         <button type="submit"
@@ -26,7 +40,8 @@
                 <tr>
                     <th>Tipo</th>
                     <th>Obra</th>
-                    <th>Cód. Chamada</th>
+                    <th>Idioma</th>
+                    <th>Código</th>
                     <th>Situação</th>
                     <!-- Coluna de Ações visível apenas para Admin -->
                     {% if session.get('usuario_logado') %}
@@ -42,6 +57,7 @@
                         <strong>{{ obra['titulo'] }}</strong><br>
                         <small>{{ obra['autor'] }}</small>
                     </td>
+                    <td>{{ obra['idioma']|capitalize }}</td>
                     <td style="font-family: monospace; font-weight: bold; color: #006600;">{{ obra['cod_chamada'] }}
                     </td>
                     <td>
@@ -57,10 +73,10 @@
                     <!-- Botões visíveis apenas para Admin -->
                     {% if session.get('usuario_logado') %}
                     <td>
-                        <a href="{{ url_for('editar', id=obra['id']) }}" style="color: blue; margin-right: 5px;">✏️
+                        <a href="{{ url_for('editar', id=obra['id']) }}" style="color: blue; margin-right: 5px;">
                             Editar</a>
                         <a href="{{ url_for('excluir', id=obra['id']) }}" style="color: red;"
-                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">🗑️ Excluir</a>
+                            onclick="return confirm('Tem certeza que deseja excluir este livro?');"> Excluir</a>
                     </td>
                     {% endif %}
                 </tr>

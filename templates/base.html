@@ -14,8 +14,8 @@
         <div id="headerimg">
             <div id="headerusuario">
                 {% if session.get('usuario_logado') %}
-                <p style="color: #3c763d;">MODO RECEPÇÃO (<a href="{{ url_for('logout') }}"
-                        style="color: red;">Sair</a>)</p>
+                <p style="color: #ffffff;">MODO RECEPÇÃO (<a href="{{ url_for('logout') }}"
+                        style="color: rgb(255, 255, 255);">Sair</a>)</p>
                 {% else %}
                 <p><a href="{{ url_for('login') }}">Acesso Recepção</a></p>
                 {% endif %}
