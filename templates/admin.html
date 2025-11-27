@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="content">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Cadastrar Nova Obra</h2>
+    </div>
+
+    {% if mensagem %}
+        {% if 'Erro' in mensagem %}
+            <div class="msgerro"
+            style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; border: 1px solid #f5c6cb; margin-bottom: 20px;">
+                {{ mensagem }}
+            </div>
+        {% else %}
+            <div class="msgaviso"
+            style="background: #dff0d8; color: #3c763d; padding: 15px; border-radius: 4px; border: 1px solid #d6e9c6; margin-bottom: 20px;">
+                {{ mensagem }}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <form method="POST" style="background: #fff; padding: 20px; border: 1px solid #ddd;">
+        <label><strong>Título da Obra:</strong></label><br>
+        <input type="text" name="titulo" required style="width: 100%; padding: 8px; margin-bottom: 15px;">
+
+        <label><strong>Autor(es):</strong></label><br>
+        <input type="text" name="autor" required style="width: 100%; padding: 8px; margin-bottom: 15px;">
+
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <label>Tipo:</label><br>
+                <select name="tipo" style="width: 100%; padding: 8px;">
+                    <option value="livro">Livro</option>
+                    <option value="revista">Revista</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>Idioma:</label><br>
+                <select name="idioma" style="width: 100%; padding: 8px;">
+                    <option value="pt">Português</option>
+                    <option value="en">Inglês</option>
+                    <option value="es">Espanhol</option>
+                </select>
+            </div>
+        </div>
+        <br>
+
+        <label><strong>Código de Chamada (Etiqueta):</strong></label><br>
+        <input type="text" name="cod_chamada" required placeholder="Ex: 869.3 ASS"
+            style="width: 50%; padding: 8px; margin-bottom: 15px; font-family: monospace;">
+        <br>
+        <hr><br>
+
+        <button type="submit"
+            style="background: #3A853D; color: white; padding: 12px 30px; font-size: 1.1em; border: none; cursor: pointer;">Salvar
+            no Acervo</button>
+    </form>
+</div>
+{% endblock %}

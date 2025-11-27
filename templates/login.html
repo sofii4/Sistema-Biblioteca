@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="content" style="text-align: center; padding-top: 50px;">
+    <h2>Acesso da Recepção</h2>
+    <p style="padding-bottom: 10px;;">Área restrita para cadastramento de livros.</p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <p style="color: red; font-weight: bold;">{{ messages[0] }}</p>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" style="display: inline-block; background: #eee; padding: 30px; border-radius: 8px;">
+        <label>Senha de Acesso:</label><br>
+        <input type="password" name="senha" style="padding: 10px; width: 200px; margin-top: 10px;"><br><br>
+        <button type="submit"
+            style="background: #333; color: white; padding: 10px 20px; border: none; cursor: pointer;">Entrar</button>
+    </form>
+</div>
+{% endblock %}

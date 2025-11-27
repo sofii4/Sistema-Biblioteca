@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Municipal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+
+    <div id="headerine">
+        <div id="headerimg">
+            <div id="headerusuario">
+                {% if session.get('usuario_logado') %}
+                <p style="color: #3c763d;">MODO RECEPÇÃO (<a href="{{ url_for('logout') }}"
+                        style="color: red;">Sair</a>)</p>
+                {% else %}
+                <p><a href="{{ url_for('login') }}">Acesso Recepção</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="main-title">
+        <h1>Sistema de Consulta de Acervo</h1>
+    </div>
+
+    <div id="container">
+        <div id="content_box">
+            <div class="widget">
+                <h2>Menu</h2>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">🔍 Consultar Livros</a></li>
+                    {% if session.get('usuario_logado') %}
+                    <li style="background: #fff3cd;"><a href="{{ url_for('admin') }}">➕ Cadastrar Novo</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="right-column">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+</body>
+
+</html>

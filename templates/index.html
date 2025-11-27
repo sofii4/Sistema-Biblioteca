@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="content">
+    <h2>Consultar Acervo</h2>
+
+    <!-- Formulário de Busca -->
+    <form action="/" method="GET"
+        style="background: #f9f9f9; padding: 20px; border: 1px solid #eee; margin-bottom: 20px;">
+        <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 60%;">
+
+        <select name="tipo">
+            <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
+            <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
+            <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
+        </select>
+
+        <button type="submit"
+            style="background: #3A853D; color: white; border: none; padding: 9px 20px; border-radius: 4px;">Buscar</button>
+    </form>
+
+    <!-- Tabela de Resultados -->
+    <div class="entry">
+        <table class='tabelalarga'>
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Obra</th>
+                    <th>Cód. Chamada</th>
+                    <th>Situação</th>
+                    <!-- Coluna de Ações visível apenas para Admin -->
+                    {% if session.get('usuario_logado') %}
+                    <th>Ações Admin</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for obra in obras %}
+                <tr>
+                    <td>{{ obra['tipo']|capitalize }}</td>
+                    <td>
+                        <strong>{{ obra['titulo'] }}</strong><br>
+                        <small>{{ obra['autor'] }}</small>
+                    </td>
+                    <td style="font-family: monospace; font-weight: bold; color: #006600;">{{ obra['cod_chamada'] }}
+                    </td>
+                    <td>
+                        {% if obra['situacao'] == 'disponivel' %}
+                        <span style="color: green;">Disponível</span>
+                        {% elif obra['situacao'] == 'emprestado' %}
+                        <span style="color: red; font-weight: bold;">Emprestado</span>
+                        {% else %}
+                        <span style="color: grey;">{{ obra['situacao']|capitalize }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Botões visíveis apenas para Admin -->
+                    {% if session.get('usuario_logado') %}
+                    <td>
+                        <a href="{{ url_for('editar', id=obra['id']) }}" style="color: blue; margin-right: 5px;">✏️
+                            Editar</a>
+                        <a href="{{ url_for('excluir', id=obra['id']) }}" style="color: red;"
+                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">🗑️ Excluir</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if session.get('usuario_logado') %}5{% else %}4{% endif %}" class="tabela-vazia">
+                        Nenhum livro encontrado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bloco de Paginação -->
+    {% if total_paginas > 1 %}
+    <div style="margin-top: 20px; text-align: center; padding-top: 10px; border-top: 1px dashed #ccc;">
+
+        {% if pagina_atual > 1 %}
+        <a href="{{ url_for('index', page=pagina_atual-1, q=q, tipo=tipo) }}"
+            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-right: 5px; border: 1px solid #ddd;">
+            &laquo; Anterior
+        </a>
+        {% endif %}
+
+        <span style="font-weight: bold; margin: 0 10px; color: #3A853D;">
+            Página {{ pagina_atual }} de {{ total_paginas }}
+        </span>
+
+        {% if pagina_atual < total_paginas %} <a href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo) }}"
+            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-left: 5px; border: 1px solid #ddd;">
+            Próximo &raquo;
+            </a>
+            {% endif %}
+
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
