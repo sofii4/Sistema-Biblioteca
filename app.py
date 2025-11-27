@@ -49,7 +49,7 @@ def index():
     tipo = request.args.get('tipo', 'todos')
     idioma = request.args.get('idioma', 'todos') 
     situacao = request.args.get('situacao', 'todos')   
-    cod_chamada = request.args.get('cod_chamada', '')   
+    cod_chamada = request.args.get('cod_chamada', '')  .strip() 
     
     query_base = "FROM obras WHERE 1=1"
     params = []
@@ -73,8 +73,9 @@ def index():
 
     if cod_chamada:
         # busca parcial por código de chamada; use '=' se preferir correspondência exata
-        query_base += " AND cod_chamada LIKE ?"
-        params.append(f'%{cod_chamada}%')
+        query_base += " AND (cod_chamada = ? OR cod_chamada LIKE ?)"
+        params.append(cod_chamada)
+        params.append(f'{cod_chamada}%')
     
     conn = get_db_connection()
 
