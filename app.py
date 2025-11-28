@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
 
@@ -49,8 +49,7 @@ def index():
     tipo = request.args.get('tipo', 'todos')
     idioma = request.args.get('idioma', 'todos') 
     situacao = request.args.get('situacao', 'todos')   
-    cod_chamada = request.args.get('cod_chamada', '')  .strip() 
-    
+    cod_chamada = request.args.get('cod_chamada', '').strip() 
     query_base = "FROM obras WHERE 1=1"
     params = []
 
@@ -209,5 +208,5 @@ def logout():
 
 if __name__ == '__main__':
     init_db()
-     app.run(debug=(os.environ.get('FLASK_ENV') == 'development'), host='127.0.0.1', port=5000)
+    app.run(debug=(os.environ.get('FLASK_ENV') == 'development'), host='127.0.0.1', port=5000)
 
