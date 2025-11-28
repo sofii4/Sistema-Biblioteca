@@ -208,5 +208,8 @@ def logout():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=(os.environ.get('FLASK_ENV') == 'development'), host='127.0.0.1', port=5000)
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('1', 'true', 'yes')
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+    port = int(os.environ.get('PORT', 8000))
+    app.run(debug=debug, host=host, port=port)
 

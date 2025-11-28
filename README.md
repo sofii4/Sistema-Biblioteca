@@ -14,7 +14,7 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
 
 - Python 3.x instalado
 
-## Instalação e uso
+## Instalação e uso em modo Desenvolvimento
 
 1. Abrir o Terminal de Comando e entrar na pasta do projeto:
 
@@ -53,3 +53,24 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
  ### Observação importante:
 
 - O banco SQLite (biblioteca.db) é local; não comitar o arquivo no repositório.
+
+
+
+## Rodar em modo Produção (gunicorn)
+
+1. Ativar venv:
+   ```bash
+   source venv/bin/activate
+   ```
+
+2. Criar DB (uma vez):
+   ```bash
+   python -c "from app import init_db; init_db()"
+   ```
+
+3. Executar gunicorn (SQLite → 1 worker recomendado):
+   ```bash
+   venv/bin/gunicorn -w 1 -b 0.0.0.0:8000 --chdir /caminho/para/Sistema-Biblioteca app:app
+   ```
+
+   
