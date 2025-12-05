@@ -1,4 +1,4 @@
-# Sistema Biblioteca
+# 📖 Sistema Biblioteca
 
 Aplicação web simples para gerenciamento de um acervo de obras. Permite pesquisar, listar com paginação, adicionar, editar e excluir obras. Possui área administrativa protegida por senha.
 
@@ -12,7 +12,7 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
 
 ## Pré-requisitos
 
-- Python 3.x instalado
+- Python 3.x
 
 ## Instalação e uso em modo Desenvolvimento
 
@@ -59,13 +59,11 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
 
 
 
- ### Observação importante:
-
-- O banco SQLite (biblioteca.db) é local; não comitar o arquivo no repositório.
 
 
+## Rodar em modo Produção 
 
-## Rodar em modo Produção (gunicorn)
+ Usando servidor Gunicorn
 
 1. Ativar venv:
    ```bash
