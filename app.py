@@ -174,6 +174,7 @@ def editar(id):
                 'tipo': tipo, 'idioma': idioma, 
                 'cod_chamada': cod_chamada, 'situacao': situacao
             }
+            conn.close() 
         else:
             conn.execute('''
                 UPDATE obras 

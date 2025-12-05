@@ -18,9 +18,9 @@
 
         <select name="idioma">
             <option value="todos" {% if idioma=='todos' %}selected{% endif %}>Qualquer idioma</option>
-            <option value="PT" {% if idioma=='Português' %}selected{% endif %}>Português</option>
-            <option value="IN" {% if idioma=='Inglês' %}selected{% endif %}>Inglês</option>
-            <option value="ES" {% if idioma=='Espanhol' %}selected{% endif %}>Espanhol</option>
+            <option value="pt" {% if idioma=='pt' %}selected{% endif %}>Português</option>
+            <option value="en" {% if idioma=='en' %}selected{% endif %}>Inglês</option>
+            <option value="es" {% if idioma=='es' %}selected{% endif %}>Espanhol</option>
         </select>
 
         <select name="situacao">
@@ -82,7 +82,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="{% if session.get('usuario_logado') %}5{% else %}4{% endif %}" class="tabela-vazia">
+                    <td colspan="{% if session.get('usuario_logado') %}6{% else %}5{% endif %}" class="tabela-vazia">
                         Nenhum livro encontrado.
                     </td>
                 </tr>
@@ -94,24 +94,25 @@
     <!-- Bloco de Paginação -->
     {% if total_paginas > 1 %}
     <div style="margin-top: 20px; text-align: center; padding-top: 10px; border-top: 1px dashed #ccc;">
-
+    
         {% if pagina_atual > 1 %}
-        <a href="{{ url_for('index', page=pagina_atual-1, q=q, tipo=tipo) }}"
+        <a href="{{ url_for('index', page=pagina_atual-1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"
             style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-right: 5px; border: 1px solid #ddd;">
             &laquo; Anterior
         </a>
         {% endif %}
-
+    
         <span style="font-weight: bold; margin: 0 10px; color: #3A853D;">
             Página {{ pagina_atual }} de {{ total_paginas }}
         </span>
-
-        {% if pagina_atual < total_paginas %} <a href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo) }}"
+    
+        {% if pagina_atual < total_paginas %} <a
+            href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"
             style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-left: 5px; border: 1px solid #ddd;">
             Próximo &raquo;
             </a>
             {% endif %}
-
+    
     </div>
     {% endif %}
 

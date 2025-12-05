@@ -40,7 +40,16 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
    - Copiar `.env.example` para `.env` e ajustar:
      SECRET_KEY, DATABASE, SENHA_RECEPCAO
 
-5. Inicializar e rodar:
+
+5. (Opcional) - Criar banco de dados SQLite:
+   
+   Somente se o DB ainda não existir:
+
+   ```bash
+   .\venv\Scripts\python -c "from app import init_db; init_db()"
+   ```
+
+6. Inicializar e rodar:
 
    ```bash
    python app.py
@@ -63,7 +72,7 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
    source venv/bin/activate
    ```
 
-2. Criar DB (uma vez):
+2. Criar DB:
    ```bash
    python -c "from app import init_db; init_db()"
    ```
