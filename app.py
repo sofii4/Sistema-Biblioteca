@@ -5,19 +5,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__) 
 
-# Configurações
+# Configurações básicas
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')
 app.config['DATABASE'] = os.environ.get('DATABASE', 'biblioteca.db')
 SENHA_RECEPCAO = os.environ.get('SENHA_RECEPCAO', 'admin123') 
 
 def get_db_connection():
-    conn = sqlite3.connect(app.config['DATABASE'])
-    conn.row_factory = sqlite3.Row
-    return conn
+    conn = sqlite3.connect(app.config['DATABASE']) # Conecta ao arquivo de db
+    conn.row_factory = sqlite3.Row # Permite acesso dos dados por coluna
+    return conn 
 
 def init_db():
+    # Cria o banco e a tabela inicial caso não existam
     if not os.path.exists(app.config['DATABASE']):
         conn = get_db_connection()
         conn.execute('''
@@ -40,11 +41,12 @@ def init_db():
 @app.route('/')
 def index():
     
-    # Configuração paginação
+    #Paginação
     ITENS_POR_PAGINA = 7 
     pagina = request.args.get('page', 1, type=int)
-    offset = (pagina - 1) * ITENS_POR_PAGINA
+    offset = (pagina - 1) * ITENS_POR_PAGINA 
 
+    # Filtros de busca
     q = request.args.get('q', '')
     tipo = request.args.get('tipo', 'todos')
     idioma = request.args.get('idioma', 'todos') 
@@ -71,7 +73,6 @@ def index():
         params.append(situacao)
 
     if cod_chamada:
-        # busca parcial por código de chamada; use '=' se preferir correspondência exata
         query_base += " AND (cod_chamada = ? OR cod_chamada LIKE ?)"
         params.append(cod_chamada)
         params.append(f'{cod_chamada}%')
@@ -81,11 +82,11 @@ def index():
     total_obras = conn.execute(f"SELECT COUNT(*) {query_base}", params).fetchone()[0]
     total_paginas = (total_obras + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 
-    query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT ? OFFSET ?"
+    query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT ? OFFSET ?" # Constrói a consulya final
     params.append(ITENS_POR_PAGINA)
     params.append(offset)
     
-    obras = conn.execute(query_final, params).fetchall()
+    obras = conn.execute(query_final, params).fetchall() # Executa a consulta final com paginação
     conn.close()
     
     return render_template('index.html', 
@@ -117,7 +118,7 @@ def admin():
     mensagem = None
     
     if request.method == 'POST':
-        titulo = request.form.get('titulo')
+        titulo = request.form.get('titulo') 
         autor = request.form.get('autor')
         tipo = request.form.get('tipo')
         idioma = request.form.get('idioma')
@@ -126,7 +127,7 @@ def admin():
         if titulo and autor and cod_chamada:
             conn = get_db_connection()
 
-            # Verifica se o código já está em uso
+            # Verifica duplicidade do código de chamada
             livro_existente = conn.execute('SELECT id FROM obras WHERE cod_chamada = ?', (cod_chamada,)).fetchone()
 
             if livro_existente:
@@ -143,7 +144,7 @@ def admin():
 
     return render_template('admin.html', mensagem=mensagem)
 
-@app.route('/editar/<int:id>', methods=['GET', 'POST'])
+@app.route('/editar/<int:id>', methods=['GET', 'POST']) # id = ID da obra a ser editada
 def editar(id):
     if not session.get('usuario_logado'):
         return redirect(url_for('login'))
@@ -153,14 +154,14 @@ def editar(id):
     obra = None
     
     if request.method == 'POST':
-        titulo = request.form.get('titulo')
+        titulo = request.form.get('titulo') 
         autor = request.form.get('autor')
         tipo = request.form.get('tipo')
         idioma = request.form.get('idioma')
         cod_chamada = request.form.get('cod_chamada')
         situacao = request.form.get('situacao')
 
-        # Verifica se o código já está em uso
+        # Verifica duplicidade do código de chamada
         livro_existente = conn.execute(
             'SELECT id FROM obras WHERE cod_chamada = ? AND id != ?', 
             (cod_chamada, id)
@@ -168,7 +169,6 @@ def editar(id):
 
         if livro_existente:
             mensagem = f"Erro: O código '{cod_chamada}' já está sendo usado por outro livro!"
-            # Recarrega os dados do form para não perder o que foi digitado
             obra = {
                 'id': id, 'titulo': titulo, 'autor': autor, 
                 'tipo': tipo, 'idioma': idioma, 
@@ -204,7 +204,7 @@ def excluir(id):
 
 @app.route('/logout')
 def logout():
-    session.pop('usuario_logado', None)
+    session.pop('usuario_logado', None) # Remove a chave da sessão
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
