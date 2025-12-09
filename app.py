@@ -110,19 +110,30 @@ def login():
             flash('Senha incorreta!')
     return render_template('login.html')
 
+# ... (dentro da rota /admin)
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if not session.get('usuario_logado'):
         return redirect(url_for('login'))
     
     mensagem = None
-    
+    dados_formulario = {} # Inicializa um dicionário para armazenar os dados
+
     if request.method == 'POST':
         titulo = request.form.get('titulo') 
         autor = request.form.get('autor')
         tipo = request.form.get('tipo')
         idioma = request.form.get('idioma')
         cod_chamada = request.form.get('cod_chamada')
+
+        # Armazena os dados para retornar ao template em caso de erro
+        dados_formulario = {
+            'titulo': titulo,
+            'autor': autor,
+            'tipo': tipo,
+            'idioma': idioma,
+            'cod_chamada': cod_chamada
+        }
 
         if titulo and autor and cod_chamada:
             conn = get_db_connection()
@@ -132,17 +143,20 @@ def admin():
 
             if livro_existente:
                 mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
+                # **NÃO FECHA A CONEXÃO AQUI, VAMOS RETORNAR AO TEMPLATE**
             else:
                 conn.execute('INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (?, ?, ?, ?, ?)',
                              (titulo, autor, tipo, idioma, cod_chamada))
                 conn.commit()
                 mensagem = "Sucesso: Obra adicionada ao acervo!"
+                dados_formulario = {} # Limpa o formulário após o sucesso
             
             conn.close()
         else:
             mensagem = "Erro: Título, Autor e Código de Chamada são obrigatórios."
 
-    return render_template('admin.html', mensagem=mensagem)
+    # Adicione os dados_formulario ao render_template
+    return render_template('admin.html', mensagem=mensagem, dados=dados_formulario)
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST']) # id = ID da obra a ser editada
 def editar(id):
