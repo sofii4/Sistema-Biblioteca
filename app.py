@@ -15,15 +15,13 @@ SENHA_RECEPCAO = os.environ.get('SENHA_RECEPCAO', 'admin123')
 
 
 def adapt_query(query):
-    """Adapta queries SQLite (usa ?) para PostgreSQL (usa %s)."""
-    # Exclui queries que não são de SELECT, INSERT, UPDATE, DELETE (ex: o f"SELECT COUNT(*) {query_base}")
+    #Adapta queries SQLite (usa ?) para PostgreSQL (usa %s).
     if '?' in query:
         return query.replace('?', '%s')
     return query
 
 
 def get_db_connection():
-    """Cria e retorna a conexão e o cursor do PostgreSQL."""
     conn = psycopg2.connect(DATABASE_URL)
     
     cursor = conn.cursor(cursor_factory=RealDictCursor) 
@@ -31,7 +29,6 @@ def get_db_connection():
 
 
 def init_db():
-    """Cria a tabela 'obras' no PostgreSQL, se não existir."""
     conn = None
     try:
         

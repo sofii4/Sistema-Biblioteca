@@ -147,3 +147,4 @@ Para gerenciar o servidor (após mudanças de código):
 | **Reiniciar** | `sudo systemctl restart biblioteca.service` |
 | **Status** | `sudo systemctl status biblioteca.service` |
 | **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f` |
+
