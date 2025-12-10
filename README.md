@@ -13,71 +13,137 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
 ## Pré-requisitos
 
 - Python 3.x
+- PostgreSQL Server instalado e rodando (versão 12 ou superior).
 
-## Instalação e uso em modo Desenvolvimento
+## ⚙️ Configuração do Database 
 
-1. Abrir o Terminal de Comando e entrar na pasta do projeto:
+Antes de iniciar a aplicação, você deve criar o usuário e o banco de dados no seu servidor PostgreSQL.
 
-   ```bash
-   cd "C:\Users\Seu-User\Pasta\Sistema-Biblioteca"
-   ```
+1.  **Acessar o terminal PostgreSQL** (como superusuário `postgres`):
+    ```bash
+    sudo -i -u postgres
+    psql
+    ```
 
-2. Criar e ativar virtualenv:
+2.  **Criar Usuário e Banco de Dados**
+    ```sql
+    CREATE USER app_biblioteca WITH ENCRYPTED PASSWORD 'SUA_SENHA_FORTE_APP';
+    CREATE DATABASE biblioteca_db OWNER app_biblioteca;
+    GRANT ALL PRIVILEGES ON DATABASE biblioteca_db TO app_biblioteca;
+    \q
+    exit
+    ```
 
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   ```
 
-3. Instalar dependências:
+## 🛠️ Instalação e Uso
 
+### 1. Preparação do Ambiente (Linux/Ubuntu)
+
+1.  Abrir o Terminal na pasta do projeto:
+    ```bash
+    cd /caminho/para/Sistema-Biblioteca
+    ```
+
+2.  Criar e ativar o Ambiente Virtual (`venv`):
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+3.  Instalar dependências (incluindo o driver `psycopg2`):
     ```bash
     pip install -r requirements.txt
     ```
 
-4. Configurar variáveis de ambiente:
+### 2. Configuração de Variáveis de Ambiente
 
-   - Copiar `.env.example` para `.env` e ajustar:
-     SECRET_KEY, DATABASE, SENHA_RECEPCAO
+Crie o arquivo `.env` (a partir de `.env.example`) e ajuste as variáveis. **A `DATABASE_URL` é obrigatória.**
+
+```ini
+SECRET_KEY=sua_chave_secreta
+SENHA_RECEPCAO=admin123
+FLASK_DEBUG=True # Use True para desenvolvimento
+FLASK_HOST=127.0.0.1
+PORT=8000
+
+# IMPORTANTE: Configuração do PostgreSQL (use as credenciais criadas acima)
+# Formato: postgresql://USUARIO:SENHA@HOST/NOME_DO_BANCO
+DATABASE_URL=postgresql://app_biblioteca:SUA_SENHA_FORTE_APP@localhost/biblioteca_db
+```
+### 3. Inicializar a Tabela 
+O código irá criar a tabela `obras` no banco de dados `biblioteca_db` definido no `.env.`
+
+```bash
+(venv) python3 -c "from app import init_db; init_db()"
+```
+
+### 4. Modo Desenvolvimento
+Para rodar o Flask diretamente (apenas para testes locais):
+
+```bash
+python3 app.py
+```
+
+- A aplicação roda em `http://127.0.0.1:8000`.
+
+## 🚀 Rodar em modo Produção (Gunicorn + Systemd)
+
+Para um ambiente robusto (Linux/Ubuntu), foi utilizado o Gunicorn gerenciado pelo Systemd.
+
+### 1. Criar Arquivo de Serviço Systemd
+
+Crie o arquivo de serviço (`biblioteca.service`) para que o Gunicorn seja iniciado no boot do sistema e rode de forma persistente.
+
+```bash
+sudo nano /etc/systemd/system/biblioteca.service
+```
+
+**Conteúdo (Ajuste o `User` e o `WorkingDirectory` para o seu usuário e caminho):**
+
+```bash
+[Unit]
+Description=Servidor Gunicorn para o Sistema de Biblioteca
+After=network.target
+
+[Service]
+User=sofia  # Seu usuário do sistema!
+Group=www-data
+WorkingDirectory=/home/sofia/Sistema-Biblioteca # Seu caminho
+Environment="PATH=/home/sofia/Sistema-Biblioteca/venv/bin" # Seu caminho
+ExecStart=/home/sofia/Sistema-Biblioteca/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
 
 
-5. (Opcional) - Criar banco de dados SQLite:
-   
-   Somente se o DB ainda não existir:
+### 2. Habilitar e Iniciar o Serviço
+
+Execute os comandos para ativar e iniciar o servidor Gunicorn:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable biblioteca.service
+sudo systemctl start biblioteca.service
+```
+
+### 3. Verificar e Acessar
+
+- **Status:** Verifique se está ativo:
 
    ```bash
-   .\venv\Scripts\python -c "from app import init_db; init_db()"
+   sudo systemctl status biblioteca.service
    ```
 
-6. Inicializar e rodar:
+- **Acesso:** O servidor estará acessível em `http://IP_DO_SERVIDOR:8000` (Use `127.0.0.1:8000` na máquina hospedeira com redirecionamento de porta). 
 
-   ```bash
-   python app.py
-   ```
+### 4. Controle do Serviço 
+Para gerenciar o servidor (após mudanças de código):
 
-   - A aplicação roda em http://127.0.0.1:8000 por padrão.
-
-
-
-
-
-## Rodar em modo Produção 
-
- Usando servidor Gunicorn
-
-1. Ativar venv:
-   ```bash
-   source venv/bin/activate
-   ```
-
-2. Criar DB:
-   ```bash
-   python -c "from app import init_db; init_db()"
-   ```
-
-3. Executar gunicorn (SQLite → 1 worker recomendado):
-   ```bash
-   venv/bin/gunicorn -w 1 -b 0.0.0.0:8000 --chdir /caminho/para/Sistema-Biblioteca app:app
-   ```
-
-   
+| Ação | Comando |
+| :--- | :--- |
+| **Parar** | `sudo systemctl stop biblioteca.service` |
+| **Reiniciar** | `sudo systemctl restart biblioteca.service` |
+| **Status** | `sudo systemctl status biblioteca.service` |
+| **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f` |

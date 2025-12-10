@@ -1,5 +1,6 @@
 import os
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor # Retornar resultados como dicionários
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
 
@@ -9,21 +10,35 @@ app = Flask(__name__)
 
 # Configurações básicas
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')
-app.config['DATABASE'] = os.environ.get('DATABASE', 'biblioteca.db')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 SENHA_RECEPCAO = os.environ.get('SENHA_RECEPCAO', 'admin123') 
 
+
+def adapt_query(query):
+    """Adapta queries SQLite (usa ?) para PostgreSQL (usa %s)."""
+    # Exclui queries que não são de SELECT, INSERT, UPDATE, DELETE (ex: o f"SELECT COUNT(*) {query_base}")
+    if '?' in query:
+        return query.replace('?', '%s')
+    return query
+
+
 def get_db_connection():
-    conn = sqlite3.connect(app.config['DATABASE']) # Conecta ao arquivo de db
-    conn.row_factory = sqlite3.Row # Permite acesso dos dados por coluna
-    return conn 
+    """Cria e retorna a conexão e o cursor do PostgreSQL."""
+    conn = psycopg2.connect(DATABASE_URL)
+    
+    cursor = conn.cursor(cursor_factory=RealDictCursor) 
+    return conn, cursor 
+
 
 def init_db():
-    # Cria o banco e a tabela inicial caso não existam
-    if not os.path.exists(app.config['DATABASE']):
-        conn = get_db_connection()
-        conn.execute('''
+    """Cria a tabela 'obras' no PostgreSQL, se não existir."""
+    conn = None
+    try:
+        
+        conn, cursor = get_db_connection()
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS obras (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 titulo TEXT NOT NULL,
                 autor TEXT NOT NULL,
                 tipo TEXT,
@@ -34,8 +49,14 @@ def init_db():
             )
         ''')
         conn.commit()
-        conn.close()
-        print("--- Banco de dados verificado/criado com sucesso ---")
+        print("--- Tabela 'obras' verificada/criada com sucesso no PostgreSQL ---")
+
+    except psycopg2.Error as e:
+        print(f"Erro ao inicializar o banco de dados: {e}")
+
+    finally:
+        if conn:
+            conn.close()
 
 # Rotas
 @app.route('/')
@@ -50,13 +71,14 @@ def index():
     q = request.args.get('q', '')
     tipo = request.args.get('tipo', 'todos')
     idioma = request.args.get('idioma', 'todos') 
-    situacao = request.args.get('situacao', 'todos')   
+    situacao = request.args.get('situacao', 'todos')
     cod_chamada = request.args.get('cod_chamada', '').strip() 
     query_base = "FROM obras WHERE 1=1"
     params = []
 
     if q:
-        query_base += " AND (titulo LIKE ? OR autor LIKE ?)"
+        
+        query_base += " AND (titulo ILIKE ? OR autor ILIKE ?)" # ILIKE para case-insensitive no Postgre
         params.append(f'%{q}%')
         params.append(f'%{q}%')
     
@@ -77,27 +99,44 @@ def index():
         params.append(cod_chamada)
         params.append(f'{cod_chamada}%')
     
-    conn = get_db_connection()
+    conn = None
+    try:
+        conn, cursor = get_db_connection()
+        query_base_pg = adapt_query(query_base)
 
-    total_obras = conn.execute(f"SELECT COUNT(*) {query_base}", params).fetchone()[0]
-    total_paginas = (total_obras + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
+        # Contagem total
+        cursor.execute(f"SELECT COUNT(*) AS count {query_base_pg}", params)
+        total_obras = cursor.fetchone()['count']  #Pega do dict retornado pelo RealDictCursor
+        total_paginas = (total_obras + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 
-    query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT ? OFFSET ?" # Constrói a consulya final
-    params.append(ITENS_POR_PAGINA)
-    params.append(offset)
-    
-    obras = conn.execute(query_final, params).fetchall() # Executa a consulta final com paginação
-    conn.close()
-    
+        # Query Final com paginação
+        query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT ? OFFSET ?" # Constrói a consulta final
+        params.append(ITENS_POR_PAGINA)
+        params.append(offset)
+        
+        query_final_pg = adapt_query(query_final)
+        
+        cursor.execute(query_final_pg, params)
+        obras = cursor.fetchall()
+        
+    except psycopg2.Error as e:
+        print(f"Erro na rota index: {e}")
+        obras = []
+        total_paginas = 0
+
+    finally:
+        if conn:
+            conn.close()
+
     return render_template('index.html', 
-                           obras=obras, 
-                           pagina_atual=pagina, 
-                           total_paginas=total_paginas,
-                           q=q,
-                           tipo=tipo,
-                           idioma=idioma,
-                           situacao=situacao,
-                           cod_chamada=cod_chamada)
+                            obras=obras, 
+                            pagina_atual=pagina, 
+                            total_paginas=total_paginas,
+                            q=q,
+                            tipo=tipo,
+                            idioma=idioma,
+                            situacao=situacao,
+                            cod_chamada=cod_chamada)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -110,14 +149,13 @@ def login():
             flash('Senha incorreta!')
     return render_template('login.html')
 
-# ... (dentro da rota /admin)
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if not session.get('usuario_logado'):
         return redirect(url_for('login'))
     
     mensagem = None
-    dados_formulario = {} # Inicializa um dicionário para armazenar os dados
+    dados_formulario = {} 
 
     if request.method == 'POST':
         titulo = request.form.get('titulo') 
@@ -126,7 +164,6 @@ def admin():
         idioma = request.form.get('idioma')
         cod_chamada = request.form.get('cod_chamada')
 
-        # Armazena os dados para retornar ao template em caso de erro
         dados_formulario = {
             'titulo': titulo,
             'autor': autor,
@@ -136,72 +173,94 @@ def admin():
         }
 
         if titulo and autor and cod_chamada:
-            conn = get_db_connection()
+            conn = None
+            try:
+                conn, cursor = get_db_connection()
+                # Verifica duplicidade 
+                cursor.execute(
+                    adapt_query('SELECT id FROM obras WHERE cod_chamada = ?'), 
+                    (cod_chamada,)
+                )
+                livro_existente = cursor.fetchone() 
 
-            # Verifica duplicidade do código de chamada
-            livro_existente = conn.execute('SELECT id FROM obras WHERE cod_chamada = ?', (cod_chamada,)).fetchone()
-
-            if livro_existente:
-                mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
-                # **NÃO FECHA A CONEXÃO AQUI, VAMOS RETORNAR AO TEMPLATE**
-            else:
-                conn.execute('INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (?, ?, ?, ?, ?)',
-                             (titulo, autor, tipo, idioma, cod_chamada))
-                conn.commit()
-                mensagem = "Sucesso: Obra adicionada ao acervo!"
-                dados_formulario = {} # Limpa o formulário após o sucesso
-            
-            conn.close()
+                if livro_existente:
+                    mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
+                else:
+                    cursor.execute(
+                        adapt_query('INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (?, ?, ?, ?, ?)'),
+                        (titulo, autor, tipo, idioma, cod_chamada)
+                    )
+                    conn.commit()
+                    mensagem = "Sucesso: Obra adicionada ao acervo!"
+                    dados_formulario = {} 
+            except psycopg2.Error as e:
+                mensagem = f"Erro ao adicionar obra: {e}"
+            finally:
+                if conn:
+                    conn.close()
         else:
             mensagem = "Erro: Título, Autor e Código de Chamada são obrigatórios."
 
-    # Adicione os dados_formulario ao render_template
     return render_template('admin.html', mensagem=mensagem, dados=dados_formulario)
 
-@app.route('/editar/<int:id>', methods=['GET', 'POST']) # id = ID da obra a ser editada
+@app.route('/editar/<int:id>', methods=['GET', 'POST']) 
 def editar(id):
     if not session.get('usuario_logado'):
         return redirect(url_for('login'))
     
-    conn = get_db_connection()
+    conn = None
     mensagem = None
     obra = None
     
-    if request.method == 'POST':
-        titulo = request.form.get('titulo') 
-        autor = request.form.get('autor')
-        tipo = request.form.get('tipo')
-        idioma = request.form.get('idioma')
-        cod_chamada = request.form.get('cod_chamada')
-        situacao = request.form.get('situacao')
+    try:
+        conn, cursor = get_db_connection()
+        
+        if request.method == 'POST':
+            titulo = request.form.get('titulo') 
+            autor = request.form.get('autor')
+            tipo = request.form.get('tipo')
+            idioma = request.form.get('idioma')
+            cod_chamada = request.form.get('cod_chamada')
+            situacao = request.form.get('situacao')
 
-        # Verifica duplicidade do código de chamada
-        livro_existente = conn.execute(
-            'SELECT id FROM obras WHERE cod_chamada = ? AND id != ?', 
-            (cod_chamada, id)
-        ).fetchone()
+            # Verifica duplicidade do código de chamada 
+            cursor.execute(
+                adapt_query('SELECT id FROM obras WHERE cod_chamada = ? AND id != ?'), 
+                (cod_chamada, id)
+            )
+            livro_existente = cursor.fetchone()
 
-        if livro_existente:
-            mensagem = f"Erro: O código '{cod_chamada}' já está sendo usado por outro livro!"
-            obra = {
-                'id': id, 'titulo': titulo, 'autor': autor, 
-                'tipo': tipo, 'idioma': idioma, 
-                'cod_chamada': cod_chamada, 'situacao': situacao
-            }
-            conn.close() 
-        else:
-            conn.execute('''
-                UPDATE obras 
-                SET titulo=?, autor=?, tipo=?, idioma=?, cod_chamada=?, situacao=?
-                WHERE id=?
-            ''', (titulo, autor, tipo, idioma, cod_chamada, situacao, id))
-            conn.commit()
+            if livro_existente:
+                mensagem = f"Erro: O código '{cod_chamada}' já está sendo usado por outro livro!"
+                obra = {
+                    'id': id, 'titulo': titulo, 'autor': autor, 
+                    'tipo': tipo, 'idioma': idioma, 
+                    'cod_chamada': cod_chamada, 'situacao': situacao
+                }
+            else:
+                cursor.execute(
+                    adapt_query('''
+                        UPDATE obras 
+                        SET titulo=?, autor=?, tipo=?, idioma=?, cod_chamada=?, situacao=?
+                        WHERE id=?
+                    '''), 
+                    (titulo, autor, tipo, idioma, cod_chamada, situacao, id)
+                )
+                conn.commit()
+                return redirect(url_for('index')) 
+        
+
+        if obra is None:
+            cursor.execute(adapt_query('SELECT * FROM obras WHERE id = ?'), (id,))
+            obra = cursor.fetchone()
+            
+    except psycopg2.Error as e:
+        print(f"Erro na rota editar: {e}")
+        mensagem = f"Erro de banco de dados: {e}"
+
+    finally:
+        if conn:
             conn.close()
-            return redirect(url_for('index')) 
-    
-    if obra is None:
-        obra = conn.execute('SELECT * FROM obras WHERE id = ?', (id,)).fetchone()
-        conn.close()
 
     return render_template('editar.html', obra=obra, mensagem=mensagem)
 
@@ -210,21 +269,30 @@ def excluir(id):
     if not session.get('usuario_logado'):
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    conn.execute('DELETE FROM obras WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
+    conn = None
+    try:
+        conn, cursor = get_db_connection()
+        cursor.execute(adapt_query('DELETE FROM obras WHERE id = ?'), (id,))
+        conn.commit()
+
+    except psycopg2.Error as e:
+        print(f"Erro na rota excluir: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
     return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
-    session.pop('usuario_logado', None) # Remove a chave da sessão
+    session.pop('usuario_logado', None) 
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    init_db()
+    # Certifica que a tabela existe no Postgre
+    init_db() 
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('1', 'true', 'yes')
     host = os.environ.get('FLASK_HOST', '127.0.0.1')
     port = int(os.environ.get('PORT', 8000))
     app.run(debug=debug, host=host, port=port)
-
