@@ -14,17 +14,9 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 SENHA_RECEPCAO = os.environ.get('SENHA_RECEPCAO', 'admin123') 
 
 
-def adapt_query(query):
-    #Adapta queries SQLite (usa ?) para PostgreSQL (usa %s).
-    if '?' in query:
-        return query.replace('?', '%s')
-    return query
-
-
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
-    
-    cursor = conn.cursor(cursor_factory=RealDictCursor) 
+    cursor = conn.cursor(cursor_factory=RealDictCursor) #Retorna como dicionário
     return conn, cursor 
 
 
@@ -55,11 +47,9 @@ def init_db():
         if conn:
             conn.close()
 
-# Rotas
 @app.route('/')
 def index():
-    
-    #Paginação
+    # Paginação
     ITENS_POR_PAGINA = 7 
     pagina = request.args.get('page', 1, type=int)
     offset = (pagina - 1) * ITENS_POR_PAGINA 
@@ -74,46 +64,41 @@ def index():
     params = []
 
     if q:
-        
-        query_base += " AND (titulo ILIKE ? OR autor ILIKE ?)" # ILIKE para case-insensitive no Postgre
+        # ILIKE para busca case-insensitive
+        query_base += " AND (titulo ILIKE %s OR autor ILIKE %s)" 
         params.append(f'%{q}%')
         params.append(f'%{q}%')
     
     if tipo and tipo != 'todos':
-        query_base += " AND tipo = ?"
+        query_base += " AND tipo = %s"
         params.append(tipo)
 
     if idioma and idioma != 'todos':
-        query_base += " AND idioma = ?"
+        query_base += " AND idioma = %s"
         params.append(idioma)
 
     if situacao and situacao != 'todos':
-        query_base += " AND situacao = ?"
+        query_base += " AND situacao = %s"
         params.append(situacao)
 
     if cod_chamada:
-        query_base += " AND (cod_chamada = ? OR cod_chamada LIKE ?)"
+        query_base += " AND (cod_chamada = %s OR cod_chamada LIKE %s)"
         params.append(cod_chamada)
         params.append(f'{cod_chamada}%')
     
     conn = None
     try:
         conn, cursor = get_db_connection()
-        query_base_pg = adapt_query(query_base)
-
-        # Contagem total
-        cursor.execute(f"SELECT COUNT(*) AS count {query_base_pg}", params)
-        total_obras = cursor.fetchone()['count']  #Pega do dict retornado pelo RealDictCursor
+        cursor.execute(f"SELECT COUNT(*) AS count {query_base}", params) 
+        total_obras = cursor.fetchone()['count']
         total_paginas = (total_obras + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 
         # Query Final com paginação
-        query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT ? OFFSET ?" # Constrói a consulta final
+        query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT %s OFFSET %s" 
         params.append(ITENS_POR_PAGINA)
         params.append(offset)
         
-        query_final_pg = adapt_query(query_final)
-        
-        cursor.execute(query_final_pg, params)
+        cursor.execute(query_final, params)
         obras = cursor.fetchall()
         
     except psycopg2.Error as e:
@@ -173,9 +158,9 @@ def admin():
             conn = None
             try:
                 conn, cursor = get_db_connection()
-                # Verifica duplicidade 
+                # Verifica duplicidade
                 cursor.execute(
-                    adapt_query('SELECT id FROM obras WHERE cod_chamada = ?'), 
+                    'SELECT id FROM obras WHERE cod_chamada = %s', 
                     (cod_chamada,)
                 )
                 livro_existente = cursor.fetchone() 
@@ -184,7 +169,7 @@ def admin():
                     mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
                 else:
                     cursor.execute(
-                        adapt_query('INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (?, ?, ?, ?, ?)'),
+                        'INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (%s, %s, %s, %s, %s)',
                         (titulo, autor, tipo, idioma, cod_chamada)
                     )
                     conn.commit()
@@ -222,7 +207,7 @@ def editar(id):
 
             # Verifica duplicidade do código de chamada 
             cursor.execute(
-                adapt_query('SELECT id FROM obras WHERE cod_chamada = ? AND id != ?'), 
+                'SELECT id FROM obras WHERE cod_chamada = %s AND id != %s',
                 (cod_chamada, id)
             )
             livro_existente = cursor.fetchone()
@@ -236,19 +221,18 @@ def editar(id):
                 }
             else:
                 cursor.execute(
-                    adapt_query('''
-                        UPDATE obras 
-                        SET titulo=?, autor=?, tipo=?, idioma=?, cod_chamada=?, situacao=?
-                        WHERE id=?
-                    '''), 
+                    '''
+                    UPDATE obras 
+                    SET titulo=%s, autor=%s, tipo=%s, idioma=%s, cod_chamada=%s, situacao=%s
+                    WHERE id=%s
+                    ''',
                     (titulo, autor, tipo, idioma, cod_chamada, situacao, id)
                 )
                 conn.commit()
                 return redirect(url_for('index')) 
         
-
         if obra is None:
-            cursor.execute(adapt_query('SELECT * FROM obras WHERE id = ?'), (id,))
+            cursor.execute('SELECT * FROM obras WHERE id = %s', (id,)) 
             obra = cursor.fetchone()
             
     except psycopg2.Error as e:
@@ -269,7 +253,7 @@ def excluir(id):
     conn = None
     try:
         conn, cursor = get_db_connection()
-        cursor.execute(adapt_query('DELETE FROM obras WHERE id = ?'), (id,))
+        cursor.execute('DELETE FROM obras WHERE id = %s', (id,))
         conn.commit()
 
     except psycopg2.Error as e:
