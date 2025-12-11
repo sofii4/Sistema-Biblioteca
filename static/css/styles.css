@@ -218,7 +218,7 @@ button[type="submit"]:hover {
 
 .tabelalarga th:nth-child(1),
 .tabelalarga td:nth-child(1) {
-    width: 8%;
+    width: 10%;
     text-align: center;
 }
 
@@ -245,13 +245,13 @@ button[type="submit"]:hover {
 
 .tabelalarga th:nth-child(5),
 .tabelalarga td:nth-child(5) {
-    width: 12%;
+    width: 15%;
     text-align: center;
 }
 
 .tabelalarga th:nth-child(6),
 .tabelalarga td:nth-child(6) {
-    width: 18%;
+    width: 12%;
     white-space: nowrap;
     text-align: center;
 }

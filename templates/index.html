@@ -45,7 +45,7 @@
                     <th>Situação</th>
                     <!-- Coluna de Ações visível apenas para Admin -->
                     {% if session.get('usuario_logado') %}
-                    <th>Ações Admin</th>
+                    <th>Ações</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -62,7 +62,7 @@
                     </td>
                     <td>
                         {% if obra['situacao'] == 'disponivel' %}
-                        <span style="color: green;">Disponível</span>
+                        <span style="color: green; font-weight: bold;">Disponível</span>
                         {% elif obra['situacao'] == 'emprestado' %}
                         <span style="color: red; font-weight: bold;">Emprestado</span>
                         {% else %}
@@ -73,10 +73,14 @@
                     <!-- Botões visíveis apenas para Admin -->
                     {% if session.get('usuario_logado') %}
                     <td>
-                        <a href="{{ url_for('editar', id=obra['id']) }}" style="color: blue; margin-right: 5px;">
-                            Editar</a>
-                        <a href="{{ url_for('excluir', id=obra['id']) }}" style="color: red;"
-                            onclick="return confirm('Tem certeza que deseja excluir este livro?');"> Excluir</a>
+                        <a href="{{ url_for('editar', id=obra['id']) }}" title="Editar" style="color: #333333af; margin-right: 10px;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                    
+                        <a href="{{ url_for('excluir', id=obra['id']) }}" title="Excluir" style="color:#333333af ;"
+                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
                     </td>
                     {% endif %}
                 </tr>
@@ -93,7 +97,7 @@
 
     <!-- Bloco de Paginação -->
     {% if total_paginas > 1 %}
-    <div style="margin-top: 20px; text-align: center; padding-top: 10px; border-top: 1px dashed #ccc;">
+    <div style="margin-top: 20px; text-align: center; padding-top: 10px;">
     
         {% if pagina_atual > 1 %}
         <a href="{{ url_for('index', page=pagina_atual-1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"

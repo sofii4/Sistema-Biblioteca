@@ -62,11 +62,10 @@ Crie o arquivo `.env` (a partir de `.env.example`) e ajuste as variáveis. **A `
 ```ini
 SECRET_KEY=sua_chave_secreta
 SENHA_RECEPCAO=admin123
-FLASK_DEBUG=True # Use True para desenvolvimento
+FLASK_DEBUG=False # Use True para desenvolvimento
 FLASK_HOST=127.0.0.1
 PORT=8000
 
-# IMPORTANTE: Configuração do PostgreSQL (use as credenciais criadas acima)
 # Formato: postgresql://USUARIO:SENHA@HOST/NOME_DO_BANCO
 DATABASE_URL=postgresql://app_biblioteca:SUA_SENHA_FORTE_APP@localhost/biblioteca_db
 ```
@@ -88,7 +87,7 @@ python3 app.py
 
 ## 🚀 Rodar em modo Produção (Gunicorn + Systemd)
 
-Para um ambiente robusto (Linux/Ubuntu), foi utilizado o Gunicorn gerenciado pelo Systemd.
+Para um ambiente Linux, foi utilizado o Gunicorn gerenciado pelo Systemd.
 
 ### 1. Criar Arquivo de Serviço Systemd
 
@@ -106,7 +105,7 @@ Description=Servidor Gunicorn para o Sistema de Biblioteca
 After=network.target
 
 [Service]
-User=sofia  # Seu usuário do sistema!
+User=sofia  # Seu usuário do sistema
 Group=www-data
 WorkingDirectory=/home/sofia/Sistema-Biblioteca # Seu caminho
 Environment="PATH=/home/sofia/Sistema-Biblioteca/venv/bin" # Seu caminho
@@ -116,7 +115,6 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
-
 
 ### 2. Habilitar e Iniciar o Serviço
 
@@ -147,4 +145,3 @@ Para gerenciar o servidor (após mudanças de código):
 | **Reiniciar** | `sudo systemctl restart biblioteca.service` |
 | **Status** | `sudo systemctl status biblioteca.service` |
 | **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f` |
-
