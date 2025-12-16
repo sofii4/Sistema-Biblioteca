@@ -3,10 +3,17 @@ import psycopg2
 from psycopg2.extras import RealDictCursor # Retornar resultados como dicionários
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
+import sys
 
 load_dotenv()
 
-app = Flask(__name__) 
+# Define o caminho base para evitar erro de pastas no Windows
+if getattr(sys, 'frozen', False):
+    template_folder = os.path.join(sys._MEIPASS, 'templates')
+    static_folder = os.path.join(sys._MEIPASS, 'static')
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+else:
+    app = Flask(__name__)
 
 # Configurações básicas
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')

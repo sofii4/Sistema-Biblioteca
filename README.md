@@ -13,13 +13,53 @@ Aplicação web simples para gerenciamento de um acervo de obras. Permite pesqui
 ## Pré-requisitos
 
 - Python 3.x
-- PostgreSQL Server instalado e rodando (versão 12 ou superior).
+- PostgreSQL
 
-## ⚙️ Configuração do Database 
+
+## 🪟 Rodar em Produção no Windows (Waitress + NSSM)
+
+### Instalar e Configurar PostgreSQL
+
+
+### Configurando o Ambiente:
+
+1. Criar e ativar um `venv`, instalar dependências:
+
+    ```powershell
+    python -m venv venv
+    .\venv\Scripts\Activate.ps1
+    pip install -r requirements.txt
+    ```
+
+2. Testar localmente (usa `0.0.0.0` por padrão em `run_server.py`):
+
+    ```powershell
+    python run_server.py
+    ```
+
+3. Abrir porta no Firewall (exemplo PowerShell como Administrador):
+
+    ```powershell
+    New-NetFirewallRule -DisplayName "Biblioteca" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 8000
+    ```
+
+4. Variáveis de ambiente e `.env`:
+
+- Defina `DATABASE_URL`, `SECRET_KEY` etc. como variáveis de sistema (Painel de Controle → Sistema → Variáveis de Ambiente) 
+
+6. Banco de dados remoto:
+
+- Se o PostgreSQL estiver em outra máquina, ajuste `postgresql.conf` (`listen_addresses`) e `pg_hba.conf`, e abra a porta `5432` no firewall do host do banco.
+
+
+## ⚙️ Rodar em Modo de Desenvolvimento Linux
+
+### Configuração do Database 
 
 Antes de iniciar a aplicação, você deve criar o usuário e o banco de dados no seu servidor PostgreSQL.
 
 1.  **Acessar o terminal PostgreSQL** (como superusuário `postgres`):
+
     ```bash
     sudo -i -u postgres
     psql
@@ -34,17 +74,16 @@ Antes de iniciar a aplicação, você deve criar o usuário e o banco de dados n
     exit
     ```
 
-
-## 🛠️ Instalação e Uso
-
-### 1. Preparação do Ambiente (Linux/Ubuntu)
+###  Preparação do Ambiente 
 
 1.  Abrir o Terminal na pasta do projeto:
+
     ```bash
     cd /caminho/para/Sistema-Biblioteca
     ```
 
 2.  Criar e ativar o Ambiente Virtual (`venv`):
+
     ```bash
     python3 -m venv venv
     source venv/bin/activate
@@ -55,7 +94,7 @@ Antes de iniciar a aplicação, você deve criar o usuário e o banco de dados n
     pip install -r requirements.txt
     ```
 
-### 2. Configuração de Variáveis de Ambiente
+### Configuração de Variáveis de Ambiente
 
 Crie o arquivo `.env` (a partir de `.env.example`) e ajuste as variáveis. **A `DATABASE_URL` é obrigatória.**
 
@@ -69,14 +108,17 @@ PORT=8000
 # Formato: postgresql://USUARIO:SENHA@HOST/NOME_DO_BANCO
 DATABASE_URL=postgresql://app_biblioteca:SUA_SENHA_FORTE_APP@localhost/biblioteca_db
 ```
-### 3. Inicializar a Tabela 
+
+### Inicializar a Tabela
+
 O código irá criar a tabela `obras` no banco de dados `biblioteca_db` definido no `.env.`
 
 ```bash
 (venv) python3 -c "from app import init_db; init_db()"
 ```
 
-### 4. Modo Desenvolvimento
+### Iniciando o Servidor Python
+
 Para rodar o Flask diretamente (apenas para testes locais):
 
 ```bash
@@ -85,7 +127,7 @@ python3 app.py
 
 - A aplicação roda em `http://127.0.0.1:8000`.
 
-## 🚀 Rodar em modo Produção (Gunicorn + Systemd)
+## 🚀 Rodar em Produção Linux (Gunicorn + Systemd)
 
 Para um ambiente Linux, foi utilizado o Gunicorn gerenciado pelo Systemd.
 
@@ -130,18 +172,23 @@ sudo systemctl start biblioteca.service
 
 - **Status:** Verifique se está ativo:
 
-   ```bash
-   sudo systemctl status biblioteca.service
-   ```
+  ```bash
+  sudo systemctl status biblioteca.service
+  ```
 
-- **Acesso:** O servidor estará acessível em `http://IP_DO_SERVIDOR:8000` (Use `127.0.0.1:8000` na máquina hospedeira com redirecionamento de porta). 
+- **Acesso:** O servidor estará acessível em `http://IP_DO_SERVIDOR:8000` (Use `127.0.0.1:8000` na máquina hospedeira com redirecionamento de porta).
 
-### 4. Controle do Serviço 
+### 4. Controle do Serviço
+
 Para gerenciar o servidor (após mudanças de código):
 
-| Ação | Comando |
-| :--- | :--- |
-| **Parar** | `sudo systemctl stop biblioteca.service` |
-| **Reiniciar** | `sudo systemctl restart biblioteca.service` |
-| **Status** | `sudo systemctl status biblioteca.service` |
-| **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f` |
+| Ação                   | Comando                                     |
+| :--------------------- | :------------------------------------------ |
+| **Parar**              | `sudo systemctl stop biblioteca.service`    |
+| **Reiniciar**          | `sudo systemctl restart biblioteca.service` |
+| **Status**             | `sudo systemctl status biblioteca.service`  |
+| **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f`  |
+
+
+
+
