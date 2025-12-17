@@ -3,7 +3,6 @@ from app import app, init_db
 import os
 
 if __name__ == '__main__':
-    # Garante que a tabela seja criada no banco do cliente ao iniciar
     init_db()
     
     port = int(os.environ.get('PORT', 8000))

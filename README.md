@@ -1,194 +1,108 @@
 # 📖 Sistema Biblioteca
 
-Aplicação web simples para gerenciamento de um acervo de obras. Permite pesquisar, listar com paginação, adicionar, editar e excluir obras. Possui área administrativa protegida por senha.
-
-## Funcionalidades
-
-- Listagem paginada de obras com busca por título/autor e filtro por tipo.
-- Área administrativa para adicionar, editar e excluir obras (acesso por senha).
-- Validação para evitar códigos de chamada duplicados.
-- Banco SQLite local por padrão.
-- Layout intuitivo e responsivo.
+Aplicação web para gerenciamento de um acervo de obras. Permite pesquisar, listar com paginação, adicionar, editar e excluir obras. Possui área administrativa protegida por senha.
 
 ## Pré-requisitos
 
 - Python 3.x
-- PostgreSQL
+- PostgreSQL 
 
+## Instalação
 
-## 🪟 Rodar em Produção no Windows (Waitress + NSSM)
+### 1. Instalar o Python
+ - Execute o Instalador
+ 
+  ✅ Marque a caixa **"Add Python.exe to PATH"** antes de clicar em *Install Now*
 
-### Instalar e Configurar PostgreSQL
+  ### 2. Instalar o PostgreSQL
 
+  - Siga a instalação padrão
+  - Defina uma senha para o usuário `postgres`.
+  - Ao finalizar, abra o **pgAdmin 4.**
+  - Clique com o botão direito em `Databases` > `Create` > `Database....`
+  - Nomeie como: `biblioteca_db.`
 
-### Configurando o Ambiente:
+### 3. Preparar a Pasta do Projeto
 
-1. Criar e ativar um `venv`, instalar dependências:
+- Coloque a pasta do projeto em um local definitivo.
 
-    ```powershell
-    python -m venv venv
-    .\venv\Scripts\Activate.ps1
-    pip install -r requirements.txt
-    ```
-
-2. Testar localmente (usa `0.0.0.0` por padrão em `run_server.py`):
-
-    ```powershell
-    python run_server.py
-    ```
-
-3. Abrir porta no Firewall (exemplo PowerShell como Administrador):
-
-    ```powershell
-    New-NetFirewallRule -DisplayName "Biblioteca" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 8000
-    ```
-
-4. Variáveis de ambiente e `.env`:
-
-- Defina `DATABASE_URL`, `SECRET_KEY` etc. como variáveis de sistema (Painel de Controle → Sistema → Variáveis de Ambiente) 
-
-6. Banco de dados remoto:
-
-- Se o PostgreSQL estiver em outra máquina, ajuste `postgresql.conf` (`listen_addresses`) e `pg_hba.conf`, e abra a porta `5432` no firewall do host do banco.
-
-
-## ⚙️ Rodar em Modo de Desenvolvimento Linux
-
-### Configuração do Database 
-
-Antes de iniciar a aplicação, você deve criar o usuário e o banco de dados no seu servidor PostgreSQL.
-
-1.  **Acessar o terminal PostgreSQL** (como superusuário `postgres`):
+- Crie um arquivo chamado .env na raiz da pasta com o seguinte conteúdo:
 
     ```bash
-    sudo -i -u postgres
-    psql
+    DATABASE_URL=postgresql://postgres:SUA_SENHA_AQUI@localhost:5432/biblioteca_db
+    SECRET_KEY=uma_chave_segura_aleatoria
+    FLASK_DEBUG=False 
+    FLASK_HOST=127.0.0.1
+    PORT=5000 #ou outra
+    SENHA_RECEPCAO=admin123 (Sua senha de login)
     ```
 
-2.  **Criar Usuário e Banco de Dados**
-    ```sql
-    CREATE USER app_biblioteca WITH ENCRYPTED PASSWORD 'SUA_SENHA_FORTE_APP';
-    CREATE DATABASE biblioteca_db OWNER app_biblioteca;
-    GRANT ALL PRIVILEGES ON DATABASE biblioteca_db TO app_biblioteca;
-    \q
-    exit
-    ```
+### 4. Configurar o Ambiente Python
 
-###  Preparação do Ambiente 
-
-1.  Abrir o Terminal na pasta do projeto:
-
-    ```bash
-    cd /caminho/para/Sistema-Biblioteca
-    ```
-
-2.  Criar e ativar o Ambiente Virtual (`venv`):
-
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-
-3.  Instalar dependências (incluindo o driver `psycopg2`):
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-### Configuração de Variáveis de Ambiente
-
-Crie o arquivo `.env` (a partir de `.env.example`) e ajuste as variáveis. **A `DATABASE_URL` é obrigatória.**
-
-```ini
-SECRET_KEY=sua_chave_secreta
-SENHA_RECEPCAO=admin123
-FLASK_DEBUG=False # Use True para desenvolvimento
-FLASK_HOST=127.0.0.1
-PORT=8000
-
-# Formato: postgresql://USUARIO:SENHA@HOST/NOME_DO_BANCO
-DATABASE_URL=postgresql://app_biblioteca:SUA_SENHA_FORTE_APP@localhost/biblioteca_db
-```
-
-### Inicializar a Tabela
-
-O código irá criar a tabela `obras` no banco de dados `biblioteca_db` definido no `.env.`
+Abra o PowerShell dentro da pasta do projeto e execute:
 
 ```bash
-(venv) python3 -c "from app import init_db; init_db()"
+# 1. Criar ambiente virtual
+python -m venv venv
+
+# 2. Ativar o ambiente
+.\venv\Scripts\activate
+
+# 3. Instalar bibliotecas
+pip install -r requirements.txt
 ```
 
-### Iniciando o Servidor Python
 
-Para rodar o Flask diretamente (apenas para testes locais):
+## Liberação de Acesso (Rede Local)
+
+Para que outras máquinas acessem o sistema:
+
+- Abra o **Firewall do Windows com Segurança Avançada**.
+
+- Em **Regras de Entrada**, crie uma "Nova Regra".
+
+- Escolha **Porta** > **TCP** > Porta específica: **5000** (ou a porta configurada).
+
+- Selecione **Permitir a conexão** e marque as opções *Particular e Público*.
+
+
+## Automação para o Cliente
+
+### 1. Criar Arquivo de Inicialização
+
+Para facilitar o uso, crie um arquivo chamado `Iniciar_Sistema.bat` na área de trabalho do cliente:
 
 ```bash
-python3 app.py
+@echo off
+title SERVIDOR DA BIBLIOTECA - NAO FECHAR
+cd /d "C:\Caminho\Para\A Pasta\Do\Projeto"
+call venv\Scripts\activate
+python run_server.py
+pause
 ```
 
-- A aplicação roda em `http://127.0.0.1:8000`.
+### 2. Inicializar Automaticamente com Windows
 
-## 🚀 Rodar em Produção Linux (Gunicorn + Systemd)
+- Pressione `Win + R`, digite `shell:startup` e dê Enter.
 
-Para um ambiente Linux, foi utilizado o Gunicorn gerenciado pelo Systemd.
+- Coloque um **atalho** do seu arquivo `.bat`dentro dessa pasta que abriu.
 
-### 1. Criar Arquivo de Serviço Systemd
+### 3. Ícone de Acesso Fácil
 
-Crie o arquivo de serviço (`biblioteca.service`) para que o Gunicorn seja iniciado no boot do sistema e rode de forma persistente.
+Isso permite que o cliente abra a página do sistema sem precisar digitar o endereço.
 
-```bash
-sudo nano /etc/systemd/system/biblioteca.service
-```
+- Clique com o botão direito na Área de Trabalho
 
-**Conteúdo (Ajuste o `User` e o `WorkingDirectory` para o seu usuário e caminho):**
+- Vá em **Novo** > **Atalho**.]
 
-```bash
-[Unit]
-Description=Servidor Gunicorn para o Sistema de Biblioteca
-After=network.target
+- No campo "*Digite o local do item*", coloque: `http://localhost:5000` (ou a porta que você configurou).
 
-[Service]
-User=sofia  # Seu usuário do sistema
-Group=www-data
-WorkingDirectory=/home/sofia/Sistema-Biblioteca # Seu caminho
-Environment="PATH=/home/sofia/Sistema-Biblioteca/venv/bin" # Seu caminho
-ExecStart=/home/sofia/Sistema-Biblioteca/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
-Restart=always
+- Clique em **Avançar** e dê o nome desejado.
 
-[Install]
-WantedBy=multi-user.target
-```
+- Clique em **Concluir**.
 
-### 2. Habilitar e Iniciar o Serviço
+## Como acessar
 
-Execute os comandos para ativar e iniciar o servidor Gunicorn:
+- **No PC Servidor:** Abra o ícone na Área de Trabalho, ou o Chrome e acesse http://localhost:5000.
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable biblioteca.service
-sudo systemctl start biblioteca.service
-```
-
-### 3. Verificar e Acessar
-
-- **Status:** Verifique se está ativo:
-
-  ```bash
-  sudo systemctl status biblioteca.service
-  ```
-
-- **Acesso:** O servidor estará acessível em `http://IP_DO_SERVIDOR:8000` (Use `127.0.0.1:8000` na máquina hospedeira com redirecionamento de porta).
-
-### 4. Controle do Serviço
-
-Para gerenciar o servidor (após mudanças de código):
-
-| Ação                   | Comando                                     |
-| :--------------------- | :------------------------------------------ |
-| **Parar**              | `sudo systemctl stop biblioteca.service`    |
-| **Reiniciar**          | `sudo systemctl restart biblioteca.service` |
-| **Status**             | `sudo systemctl status biblioteca.service`  |
-| **Logs em tempo real** | `sudo journalctl -u biblioteca.service -f`  |
-
-
-
-
+- **Em outros dispositivos:** Acesse `http://[IP_DO_SERVIDOR]:5000`. (Para descobrir o IP, use o comando `ipconfig` no terminal).

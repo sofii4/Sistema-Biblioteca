@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+app = Flask(__name__)
+
 # Configurações básicas
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')
 DATABASE_URL = os.environ.get('DATABASE_URL')
