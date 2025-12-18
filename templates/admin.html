@@ -41,7 +41,7 @@
                 <label>Idioma:</label><br>
                 <select name="idioma" value="{{ dados.titulo or '' }}" required style="width: 100%; padding: 8px;">
                     <option value="pt" {% if dados.idioma=='pt' %}selected{% endif %}>Português</option>
-                    <option value="in" {% if dados.idioma=='in' %}selected{% endif %}>Inglês</option>
+                    <option value="en" {% if dados.idioma=='en' %}selected{% endif %}>Inglês</option>
                     <option value="es" {% if dados.idioma=='es' %}selected{% endif %}>Espanhol</option>
                 </select>
             </div>
