@@ -50,6 +50,9 @@ python -m venv venv
 
 # 3. Instalar bibliotecas
 pip install -r requirements.txt
+
+# 4. Rodar o Servidor
+python run_server.py
 ```
 
 
