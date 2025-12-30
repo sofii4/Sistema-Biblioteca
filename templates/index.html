@@ -7,23 +7,25 @@
     <!-- Formulário de Busca -->
     <form action="/" method="GET"
         style="background: #f9f9f9; padding: 20px; border: 1px solid #eee; margin-bottom: 20px;">
-        <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 60%;">
-        <input type="text" name="cod_chamada" placeholder="Código de chamada" value="{{ cod_chamada }}">
+        <div class="input-row">
+            <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 60%;">
+            <input type="text" name="cod_chamada" placeholder="Código de chamada" value="{{ cod_chamada }}">
+        </div>
 
-        <select name="tipo">
+        <select name="tipo" class="js-choice">
             <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
             <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
             <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
         </select>
 
-        <select name="idioma">
+        <select name="idioma" class="js-choice">
             <option value="todos" {% if idioma=='todos' %}selected{% endif %}>Qualquer idioma</option>
             <option value="pt" {% if idioma=='pt' %}selected{% endif %}>Português</option>
             <option value="en" {% if idioma=='en' %}selected{% endif %}>Inglês</option>
             <option value="es" {% if idioma=='es' %}selected{% endif %}>Espanhol</option>
         </select>
 
-        <select name="situacao">
+        <select name="situacao" class="js-choice">
             <option value="todos" {% if situacao=='todos' %}selected{% endif %}>Qualquer situação</option>
             <option value="disponivel" {% if situacao=='disponivel' %}selected{% endif %}>Disponível</option>
             <option value="emprestado" {% if situacao=='emprestado' %}selected{% endif %}>Emprestado</option>
@@ -121,4 +123,6 @@
     {% endif %}
 
 </div>
+
+
 {% endblock %}

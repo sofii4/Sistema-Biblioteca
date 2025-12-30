@@ -181,6 +181,11 @@ select {
     margin-top: 5px;
 }
 
+input[type="text"], input[type="password"] {
+   padding: 10px;
+}
+
+
 button[type="submit"] {
     cursor: pointer;
     transition: background 0.2s;
@@ -294,4 +299,120 @@ button[type="submit"]:hover {
         min-width: 600px;
     }
 }
+
+/*INPUTS*/
+
+input,
+select,
+textarea,
+button,
+.choices__inner,
+.choices__list--dropdown {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 14px !important;
+}
+
+input[type="text"] {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+::placeholder {
+    font-family: Arial, Helvetica, sans-serif !important;
+    opacity: 0.8;
+}
+
+input{
+    padding: 12px !important;
+}
+
+input:focus{
+    border: 1px solid green !important;
+    outline: none !important;
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-row input[type="text"] {
+    height: 44px;
+    padding: 0 15px !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.input-row input[type="text"]:first-child {
+    flex: 0 0 65%;
+}
+
+.input-row input[type="text"]:last-child {
+    flex: 1;
+}
+
+.input-row input[type="text"]:focus {
+    border-color: #3A853D;
+    box-shadow: 0 0 4px rgba(58, 133, 61, 0.2);
+}
+
+@media (max-width: 768px) {
+    .input-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-row input[type="text"]:first-child,
+    .input-row input[type="text"]:last-child {
+        width: 100% !important;
+        flex: none !important;
+        margin-left: 0 !important;
+    }
+}
+
+/*SELECTS*/
+
+.choices{
+    margin-bottom: 15px !important;
+}
+
+.choices__inner {
+    padding: 8px 15px !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    background-color: #fff !important;
+    border-radius: 4px !important;
+}
+
+.choices__list{
+    padding-left: 10px !important;
+}
+
+.choices__list--dropdown .choices__item--choice {
+    font-size: 14px !important;
+}
+
+.choices__item i {
+    padding-left: 10px !important;
+    margin-right: 10px !important;
+}
+
+.choices__list--dropdown {
+    padding: 5px !important;
+    border: 1px solid #ccc !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.choices__list--dropdown .choices__item--choice.is-highlighted {
+    background-color: #e8f5e9 !important;
+    color: #1b5e20 !important;
+}
+
 

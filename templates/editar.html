@@ -15,15 +15,15 @@
 
     <form method="POST">
         <label>Título:</label><br>
-        <input type="text" name="titulo" value="{{ obra['titulo'] }}" required style="width: 100%;"><br>
+        <input type="text" name="titulo" value="{{ obra['titulo'] }}" required style="width: 100%; margin-bottom: 10px;"><br>
 
         <label>Autor:</label><br>
-        <input type="text" name="autor" value="{{ obra['autor'] }}" required style="width: 100%;"><br>
+        <input type="text" name="autor" value="{{ obra['autor'] }}" required style="width: 100%; margin-bottom: 10px;"><br>
 
         <div style="display: flex; gap: 20px;">
             <div style="flex: 1;">
                 <label>Tipo:</label><br>
-                <select name="tipo" style="width: 100%;">
+                <select name="tipo" class="js-choice" style="width: 100%;">
                     <!-- verifica qual era o valor antigo para deixar selecionado -->
                     <option value="livro" {% if obra['tipo']=='livro' %}selected{% endif %}>Livro</option>
                     <option value="revista" {% if obra['tipo']=='revista' %}selected{% endif %}>Revista</option>
@@ -31,28 +31,26 @@
             </div>
             <div style="flex: 1;">
                 <label>Idioma:</label><br>
-                <select name="idioma" style="width: 100%;">
+                <select name="idioma" class="js-choice" style="width: 100%;">
                     <option value="pt" {% if obra['idioma']=='pt' %}selected{% endif %}>Português</option>
                     <option value="en" {% if obra['idioma']=='en' %}selected{% endif %}>Inglês</option>
                     <option value="es" {% if obra['idioma']=='es' %}selected{% endif %}>Espanhol</option>
                 </select>
             </div>
         </div>
-
-        <br>
+        
         <label>Código Chamada:</label><br>
         <input type="text" name="cod_chamada" value="{{ obra['cod_chamada'] }}" style="width: 100%;">
 
         <br><br>
         <label><strong>Situação (Status):</strong></label><br>
-        <select name="situacao" style="width: 100%; background: #fff3cd;">
-            <option value="disponivel" {% if obra['situacao']=='disponivel' %}selected{% endif %}>🟢 Disponível</option>
-            <option value="emprestado" {% if obra['situacao']=='emprestado' %}selected{% endif %}>🔴 Emprestado</option>
-            <option value="extraviado" {% if obra['situacao']=='extraviado' %}selected{% endif %}>⚫ Extraviado</option>
+        <select name="situacao" class="js-choice" style="width: 100%; background: #fff3cd;">
+            <option value="disponivel" {% if obra['situacao']=='disponivel' %}selected{% endif %}>Disponível</option>
+            <option value="emprestado" {% if obra['situacao']=='emprestado' %}selected{% endif %}>Emprestado</option>
+            <option value="extraviado" {% if obra['situacao']=='extraviado' %}selected{% endif %}>Extraviado</option>
         </select>
-
-        <br><br>
-        <button type="submit" style="background: #3A853D; color: white; padding: 10px 20px; border: none;">Salvar
+        <br>
+        <button type="submit" style="background: #3A853D; color: white; padding: 10px 20px; border: none; border-radius: 4px;">Salvar
             Alterações</button>
         <a href="{{ url_for('index') }}" style="margin-left: 10px; color: #666;">Cancelar</a>
     </form>
