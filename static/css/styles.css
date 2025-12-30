@@ -416,3 +416,15 @@ input:focus{
 }
 
 
+/* MENU */
+.widget ul li a i {
+    margin-right: 10px;
+    color: #3A853D;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-admin {
+    background-color: #fff3cd;
+}
+
