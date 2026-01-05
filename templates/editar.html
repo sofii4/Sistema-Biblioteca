@@ -14,15 +14,15 @@
     {% endif %}
 
     <form method="POST">
-        <label>Título:</label><br>
+        <label><strong>Título:</strong></label><br>
         <input type="text" name="titulo" value="{{ obra['titulo'] }}" required style="width: 100%; margin-bottom: 10px;"><br>
 
-        <label>Autor:</label><br>
+        <label><strong>Autor:</strong></label><br>
         <input type="text" name="autor" value="{{ obra['autor'] }}" required style="width: 100%; margin-bottom: 10px;"><br>
 
         <div style="display: flex; gap: 20px;">
             <div style="flex: 1;">
-                <label>Tipo:</label><br>
+                <label><strong>Tipo:</strong></label><br>
                 <select name="tipo" class="js-choice" style="width: 100%;">
                     <!-- verifica qual era o valor antigo para deixar selecionado -->
                     <option value="livro" {% if obra['tipo']=='livro' %}selected{% endif %}>Livro</option>
@@ -30,7 +30,7 @@
                 </select>
             </div>
             <div style="flex: 1;">
-                <label>Idioma:</label><br>
+                <label><strong>Idioma:</strong></label><br>
                 <select name="idioma" class="js-choice" style="width: 100%;">
                     <option value="pt" {% if obra['idioma']=='pt' %}selected{% endif %}>Português</option>
                     <option value="en" {% if obra['idioma']=='en' %}selected{% endif %}>Inglês</option>
@@ -39,7 +39,7 @@
             </div>
         </div>
         
-        <label>Código Chamada:</label><br>
+        <label><strong>Código Chamada:</strong></label><br>
         <input type="text" name="cod_chamada" value="{{ obra['cod_chamada'] }}" style="width: 100%;">
 
         <br><br>

@@ -31,14 +31,14 @@
 
         <div style="display: flex; gap: 20px;">
             <div style="flex: 1;">
-                <label>Tipo:</label><br>
+                <label><strong>Tipo:</strong></label><br>
                 <select name="tipo" required class="js-choice" style="width: 100%; padding: 8px;">
                     <option value="livro" {% if dados.tipo=='livro' %}selected{% endif %}>Livro</option>
                     <option value="revista" {% if dados.tipo=='revista' %}selected{% endif %}>Revista</option>
                 </select>
             </div>
             <div style="flex: 1;">
-                <label>Idioma:</label><br>
+                <label><strong>Idioma:</strong></label><br>
                 <select name="idioma" value="{{ dados.titulo or '' }}" required class="js-choice"style="width: 100%; padding: 8px;">
                     <option value="pt" {% if dados.idioma=='pt' %}selected{% endif %}>Português</option>
                     <option value="en" {% if dados.idioma=='en' %}selected{% endif %}>Inglês</option>
