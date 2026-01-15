@@ -16,6 +16,11 @@
             <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
             <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
             <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
+            <option value="enciclopedia" {% if tipo=='enciclopedia' %}selected{% endif %}>Enciclopédias</option>
+            <option value="dicionario" {% if tipo=='dicionario' %}selected{% endif %}>Dicionários</option>
+            <option value="jornal" {% if tipo=='jornal' %}selected{% endif %}>Jornais</option>
+            <option value="gibi" {% if tipo=='gibi' %}selected{% endif %}>Gibis</option>
+            <option value="livrodidatico" {% if tipo=='livrodidatico' %}selected{% endif %}>Livros Didáticos</option>
         </select>
 
         <select name="idioma" class="js-choice">
@@ -23,12 +28,18 @@
             <option value="pt" {% if idioma=='pt' %}selected{% endif %}>Português</option>
             <option value="en" {% if idioma=='en' %}selected{% endif %}>Inglês</option>
             <option value="es" {% if idioma=='es' %}selected{% endif %}>Espanhol</option>
+            <option value="it" {% if idioma=='it' %}selected{% endif %}>Italiano</option>
+            <option value="fr" {% if idioma=='fr' %}selected{% endif %}>Francês</option>
+            <option value="al" {% if idioma=='al' %}selected{% endif %}>Alemão</option>
+            <option value="la" {% if idioma=='la' %}selected{% endif %}>Latim</option>
+            <option value="ou" {% if idioma=='ou' %}selected{% endif %}>Outros</option>
         </select>
 
         <select name="situacao" class="js-choice">
             <option value="todos" {% if situacao=='todos' %}selected{% endif %}>Qualquer situação</option>
             <option value="disponivel" {% if situacao=='disponivel' %}selected{% endif %}>Disponível</option>
             <option value="emprestado" {% if situacao=='emprestado' %}selected{% endif %}>Emprestado</option>
+            <option value="reserva" {% if situacao=='reserva' %}selected{% endif %}>Reserva Técnica</option>
         </select>
 
         <button type="submit"

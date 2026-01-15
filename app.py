@@ -141,12 +141,14 @@ def admin():
     dados_formulario = {} 
 
     if request.method == 'POST':
+        # Captura todos os campos, inclusive os novos
         titulo = request.form.get('titulo') 
         autor = request.form.get('autor')
         tipo = request.form.get('tipo')
         idioma = request.form.get('idioma')
         cod_chamada = request.form.get('cod_chamada')
 
+        # Guarda os dados para devolver ao form caso haja erro (evita apagar tudo)
         dados_formulario = {
             'titulo': titulo,
             'autor': autor,
@@ -155,6 +157,7 @@ def admin():
             'cod_chamada': cod_chamada
         }
 
+        # Verifica se os campos obrigatórios foram preenchidos
         if titulo and autor and cod_chamada:
             conn = None
             try:
@@ -169,13 +172,15 @@ def admin():
                 if livro_existente:
                     mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
                 else:
+                    # Incluindo explicitamente todos os campos no INSERT
                     cursor.execute(
-                        'INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada) VALUES (%s, %s, %s, %s, %s)',
-                        (titulo, autor, tipo, idioma, cod_chamada)
+                        '''INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada, situacao) 
+                           VALUES (%s, %s, %s, %s, %s, %s)''',
+                        (titulo, autor, tipo, idioma, cod_chamada, 'disponivel')
                     )
                     conn.commit()
                     mensagem = "Sucesso: Obra adicionada ao acervo!"
-                    dados_formulario = {} 
+                    dados_formulario = {} # Limpa o formulário após o sucesso
             except psycopg2.Error as e:
                 mensagem = f"Erro ao adicionar obra: {e}"
             finally:
@@ -184,7 +189,7 @@ def admin():
         else:
             mensagem = "Erro: Título, Autor e Código de Chamada são obrigatórios."
 
-    return render_template('admin.html', mensagem=mensagem, dados=dados_formulario)
+    return render_template('admin.html', mensagem=mensagem, dados=dados_formulario or {})
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST']) 
 def editar(id):

@@ -60,49 +60,58 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Mapeamento de ícones por valor da option
+            // Mapeamento de ícones por valor da option (ATUALIZADO)
             const iconMap = {
-                // Tipos
+                // Tipos de Acervo
+                'todos': '<i class="fa-solid fa-layer-group" style="margin-right:8px;"></i>',
                 'livro': '<i class="fa-solid fa-book" style="margin-right:8px; color: #3A853D;"></i>',
                 'revista': '<i class="fa-solid fa-newspaper" style="margin-right:8px; color: #3A853D;"></i>',
-                'todos': '<i class="fa-solid fa-layer-group" style="margin-right:8px;"></i>',
+                'enciclopedia': '<i class="fa-solid fa-atlas" style="margin-right:8px; color: #3A853D;"></i>',
+                'dicionario': '<i class="fa-solid fa-language" style="margin-right:8px; color: #3A853D;"></i>',
+                'jornal': '<i class="fa-solid fa-paper-plane" style="margin-right:8px; color: #3A853D;"></i>',
+                'gibi': '<i class="fa-solid fa-mask" style="margin-right:8px; color: #3A853D;"></i>',
+                'livrodidatico': '<i class="fa-solid fa-graduation-cap" style="margin-right:8px; color: #3A853D;"></i>',
 
                 // Idiomas
-                'pt': '<i class="fa-solid fa-language" style="margin-right:8px;"></i>',
-                'en': '<i class="fa-solid fa-globe" style="margin-right:8px;"></i>',
-                'es': '<i class="fa-solid fa-earth-americas" style="margin-right:8px;"></i>',
+                'pt': '<span style="margin-right:8px;">🇧🇷</span>',
+                'en': '<span style="margin-right:8px;">🇺🇸</span>',
+                'es': '<span style="margin-right:8px;">🇪🇸</span>',
+                'it': '<span style="margin-right:8px;">🇮🇹</span>',
+                'fr': '<span style="margin-right:8px;">🇫🇷</span>',
+                'al': '<span style="margin-right:8px;">🇩🇪</span>',
+                'la': '<span style="margin-right:8px;">🏛️</span>',
+                'ou': '<i class="fa-solid fa-ellipsis" style="margin-right:8px;"></i>',
 
-                // Situação
+                // Situação/Status
                 'disponivel': '<i class="fa-solid fa-circle-check" style="margin-right:8px; color: green;"></i>',
                 'emprestado': '<i class="fa-solid fa-circle-exclamation" style="margin-right:8px; color: red;"></i>',
-                'extraviado': '<i class="fa-solid fa-circle-xmark" style="margin-right:8px; color: gray;"></i>'
+                'reserva': '<i class="fa-solid fa-box-archive" style="margin-right:8px; color: gray;"></i>',
+                'extraviado': '<i class="fa-solid fa-circle-xmark" style="margin-right:8px; color: #d97706;"></i>'
             };
 
             const elements = document.querySelectorAll('.js-choice');
             elements.forEach(el => {
                 new Choices(el, {
-                    searchEnabled: false, // Desativa busca se não for necessário
-                    itemSelectText: '',   // Remove o texto "Press to select"
+                    searchEnabled: false,
+                    itemSelectText: '',
                     shouldSort: false,
                     callbackOnCreateTemplates: function (template) {
                         return {
-                            // Como a opção aparece na lista aberta
                             choice: (classNames, data) => {
                                 const icon = iconMap[data.value] || '';
                                 return template(`
-                                <div class="${classNames.item} ${classNames.itemChoice} ${data.disabled ? classNames.itemDisabled : classNames.itemSelectable}" data-select-text="${this.config.itemSelectText}" data-choice ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'} data-id="${data.id}" data-value="${data.value}" role="option">
-                                    ${icon} ${data.label}
-                                </div>
-                            `);
+                                    <div class="${classNames.item} ${classNames.itemChoice} ${data.disabled ? classNames.itemDisabled : classNames.itemSelectable}" data-select-text="${this.config.itemSelectText}" data-choice ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'} data-id="${data.id}" data-value="${data.value}" role="option">
+                                        ${icon} ${data.label}
+                                    </div>
+                                `);
                             },
-                            // Como a opção selecionada aparece no campo fechado
                             item: (classNames, data) => {
                                 const icon = iconMap[data.value] || '';
                                 return template(`
-                                <div class="${classNames.item} ${data.highlighted ? classNames.highlightedState : classNames.itemSelectable} ${data.placeholder ? classNames.placeholder : ''}" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''} ${data.disabled ? 'aria-disabled="true"' : ''}>
-                                    ${icon} ${data.label}
-                                </div>
-                            `);
+                                    <div class="${classNames.item} ${data.highlighted ? classNames.highlightedState : classNames.itemSelectable} ${data.placeholder ? classNames.placeholder : ''}" data-item data-id="${data.id}" data-value="${data.value}" ${data.active ? 'aria-selected="true"' : ''} ${data.disabled ? 'aria-disabled="true"' : ''}>
+                                        ${icon} ${data.label}
+                                    </div>
+                                `);
                             },
                         };
                     },

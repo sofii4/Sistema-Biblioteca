@@ -2,60 +2,69 @@
 
 {% block content %}
 <div id="content">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Cadastrar Nova Obra</h2>
-    </div>
+    <h2>Cadastrar Nova Obra</h2>
 
     {% if mensagem %}
-    {% if 'Erro' in mensagem %}
-    <div class="msgerro"
-        style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; border: 1px solid #f5c6cb; margin-bottom: 20px;">
-        {{ mensagem }}
-    </div>
-    {% else %}
-    <div class="msgaviso"
-        style="background: #dff0d8; color: #3c763d; padding: 15px; border-radius: 4px; border: 1px solid #d6e9c6; margin-bottom: 20px;">
-        {{ mensagem }}
-    </div>
+        {% if 'Erro' in mensagem %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px;">
+                {{ mensagem }}
+            </div>
+        {% else %}
+            <div style="background-color: #dff0d8; color: #3c763d; padding: 15px; border: 1px solid #d6e9c6; border-radius: 4px; margin-bottom: 20px;">
+                {{ mensagem }}
+            </div>
+        {% endif %}
     {% endif %}
-    {% endif %}
-
+    
     <form method="POST" style="background: #fff; padding: 20px; border: 1px solid #ddd;">
         <label><strong>Título da Obra:</strong></label><br>
-        <input type="text" name="titulo" value="{{ dados.titulo or '' }}" required
+        <input type="text" name="titulo" value="{{ dados['titulo'] if dados['titulo'] else '' }}" required
             style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
         <label><strong>Autor(es):</strong></label><br>
-        <input type="text" name="autor" value="{{ dados.autor or '' }}" required
+        <input type="text" name="autor" value="{{ dados['autor'] if dados['autor'] else '' }}" required
             style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
         <div style="display: flex; gap: 20px;">
             <div style="flex: 1;">
                 <label><strong>Tipo:</strong></label><br>
-                <select name="tipo" required class="js-choice" style="width: 100%; padding: 8px;">
-                    <option value="livro" {% if dados.tipo=='livro' %}selected{% endif %}>Livro</option>
-                    <option value="revista" {% if dados.tipo=='revista' %}selected{% endif %}>Revista</option>
+                <select name="tipo" required class="js-choice" style="width: 100%;">
+                    <option value="livro" {% if dados['tipo']=='livro' %}selected{% endif %}>Livro</option>
+                    <option value="revista" {% if dados['tipo']=='revista' %}selected{% endif %}>Revista</option>
+                    <option value="enciclopedia" {% if dados['tipo']=='enciclopedia' %}selected{% endif %}>Enciclopédia
+                    </option>
+                    <option value="dicionario" {% if dados['tipo']=='dicionario' %}selected{% endif %}>Dicionário</option>
+                    <option value="jornal" {% if dados['tipo']=='jornal' %}selected{% endif %}>Jornal</option>
+                    <option value="gibi" {% if dados['tipo']=='gibi' %}selected{% endif %}>Gibi</option>
+                    <option value="livrodidatico" {% if dados['tipo']=='livrodidatico' %}selected{% endif %}>Livro
+                        Didático</option>
                 </select>
             </div>
             <div style="flex: 1;">
                 <label><strong>Idioma:</strong></label><br>
-                <select name="idioma" value="{{ dados.titulo or '' }}" required class="js-choice"style="width: 100%; padding: 8px;">
-                    <option value="pt" {% if dados.idioma=='pt' %}selected{% endif %}>Português</option>
-                    <option value="en" {% if dados.idioma=='en' %}selected{% endif %}>Inglês</option>
-                    <option value="es" {% if dados.idioma=='es' %}selected{% endif %}>Espanhol</option>
+                <select name="idioma" required class="js-choice" style="width: 100%;">
+                    <option value="pt" {% if dados['idioma']=='pt' %}selected{% endif %}>Português</option>
+                    <option value="en" {% if dados['idioma']=='en' %}selected{% endif %}>Inglês</option>
+                    <option value="es" {% if dados['idioma']=='es' %}selected{% endif %}>Espanhol</option>
+                    <option value="it" {% if dados['idioma']=='it' %}selected{% endif %}>Italiano</option>
+                    <option value="fr" {% if dados['idioma']=='fr' %}selected{% endif %}>Francês</option>
+                    <option value="al" {% if dados['idioma']=='al' %}selected{% endif %}>Alemão</option>
+                    <option value="la" {% if dados['idioma']=='la' %}selected{% endif %}>Latim</option>
+                    <option value="ou" {% if dados['idioma']=='ou' %}selected{% endif %}>Outros</option>
                 </select>
             </div>
         </div>
 
-        <label><strong>Código de Chamada:</strong></label><br>
-        <input type="text" name="cod_chamada" value="{{ dados.cod_chamada or '' }}" required placeholder="Ex: 869.3 ASS"
-            style="width: 50%; padding: 8px; margin-bottom: 15px; font-family: monospace;">
-        
         <br>
+        <label><strong>Código de Chamada:</strong></label><br>
+        <input type="text" name="cod_chamada" value="{{ dados['cod_chamada'] if dados['cod_chamada'] else '' }}"
+            required style="width: 50%; padding: 8px; margin-bottom: 15px;">
 
+        <br>
         <button type="submit"
-            style="background: #3A853D; color: white; padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 4px; cursor: pointer;">Salvar
-            no Acervo</button>
+            style="background: #3A853D; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer;">
+            Salvar no Acervo
+        </button>
     </form>
 </div>
 {% endblock %}
