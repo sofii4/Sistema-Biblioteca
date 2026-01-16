@@ -15,7 +15,7 @@
             </div>
         {% endif %}
     {% endif %}
-    
+
     <form method="POST" style="background: #fff; padding: 20px; border: 1px solid #ddd;">
         <label><strong>Título da Obra:</strong></label><br>
         <input type="text" name="titulo" value="{{ dados['titulo'] if dados['titulo'] else '' }}" required
@@ -55,8 +55,34 @@
             </div>
         </div>
 
-        <br>
-        <label><strong>Código de Chamada:</strong></label><br>
+        <div style="flex: 1;">
+            <label><strong>Situação Atual:</strong></label><br>
+            <select name="situacao" class="js-choice">
+                <option value="disponivel" {% if dados.get('situacao')=='disponivel' %}selected{% endif %}>Disponível</option>
+                <option value="emprestado" {% if dados.get('situacao')=='emprestado' %}selected{% endif %}>Emprestado</option>
+                <option value="reserva" {% if dados.get('situacao')=='reserva' %}selected{% endif %}>Reserva Técnica</option>
+                <option value="extraviado" {% if dados.get('situacao')=='extraviado' %}selected{% endif %}>Extraviado</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label><strong>Estante:</strong></label><br>
+                <input type="number" name="estante" value="{{ dados.get('estante', '') }}" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </div>
+            <div style="flex: 1;">
+                <label><strong>Letra:</strong></label><br>
+                <input type="text" name="letra" value="{{ dados.get('letra', '') }}" maxlength="5"
+                    style="width: 100%; padding: 8px;">
+            </div>
+            <div style="flex: 2;">
+                <label><strong>CDD:</strong></label><br>
+                <input type="text" name="cdd" value="{{ dados.get('cdd', '') }}" placeholder="Ex: 869.3/A"
+                    style="width: 100%; padding: 8px;">
+            </div>
+        </div>
+
+        <label><strong>Código:</strong></label><br>
         <input type="text" name="cod_chamada" value="{{ dados['cod_chamada'] if dados['cod_chamada'] else '' }}"
             required style="width: 50%; padding: 8px; margin-bottom: 15px;">
 

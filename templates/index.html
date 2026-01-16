@@ -4,76 +4,103 @@
 <div id="content">
     <h2>Consultar Acervo</h2>
 
-    <!-- Formulário de Busca -->
-    <form action="/" method="GET"
-        style="background: #f9f9f9; padding: 20px; border: 1px solid #eee; margin-bottom: 20px;">
+    <form action="/" method="GET" style="background: #f9f9f9; padding: 20px; border: 1px solid #eee; margin-bottom: 20px;">
         <div class="input-row">
-            <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 60%;">
-            <input type="text" name="cod_chamada" placeholder="Código de chamada" value="{{ cod_chamada }}">
+            <input type="text" name="q" placeholder="Nome do livro ou autor..." value="{{ q }}" style="width: 75%;">
+            <input type="text" name="cod_chamada" placeholder="Código" value="{{ cod_chamada }}" style= "width: 30%;">
         </div>
+    
+        <div class="input-row" style="margin-bottom: 15px;">
+            <input type="text" name="estante" placeholder="Estante" value="{{ estante or '' }}" style="flex: 1;">
+            <input type="text" name="letra" placeholder="Letra" value="{{ letra or '' }}" style="flex: 1;">
 
-        <select name="tipo" class="js-choice">
-            <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
-            <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
-            <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
-            <option value="enciclopedia" {% if tipo=='enciclopedia' %}selected{% endif %}>Enciclopédias</option>
-            <option value="dicionario" {% if tipo=='dicionario' %}selected{% endif %}>Dicionários</option>
-            <option value="jornal" {% if tipo=='jornal' %}selected{% endif %}>Jornais</option>
-            <option value="gibi" {% if tipo=='gibi' %}selected{% endif %}>Gibis</option>
-            <option value="livrodidatico" {% if tipo=='livrodidatico' %}selected{% endif %}>Livros Didáticos</option>
-        </select>
-
-        <select name="idioma" class="js-choice">
-            <option value="todos" {% if idioma=='todos' %}selected{% endif %}>Qualquer idioma</option>
-            <option value="pt" {% if idioma=='pt' %}selected{% endif %}>Português</option>
-            <option value="en" {% if idioma=='en' %}selected{% endif %}>Inglês</option>
-            <option value="es" {% if idioma=='es' %}selected{% endif %}>Espanhol</option>
-            <option value="it" {% if idioma=='it' %}selected{% endif %}>Italiano</option>
-            <option value="fr" {% if idioma=='fr' %}selected{% endif %}>Francês</option>
-            <option value="al" {% if idioma=='al' %}selected{% endif %}>Alemão</option>
-            <option value="la" {% if idioma=='la' %}selected{% endif %}>Latim</option>
-            <option value="ou" {% if idioma=='ou' %}selected{% endif %}>Outros</option>
-        </select>
-
-        <select name="situacao" class="js-choice">
-            <option value="todos" {% if situacao=='todos' %}selected{% endif %}>Qualquer situação</option>
-            <option value="disponivel" {% if situacao=='disponivel' %}selected{% endif %}>Disponível</option>
-            <option value="emprestado" {% if situacao=='emprestado' %}selected{% endif %}>Emprestado</option>
-            <option value="reserva" {% if situacao=='reserva' %}selected{% endif %}>Reserva Técnica</option>
-        </select>
-
-        <button type="submit"
-            style="background: #3A853D; color: white; border: none; padding: 9px 20px; border-radius: 4px;">Buscar</button>
+            <input type="text" name="cdd" placeholder="Filtrar por CDD" value="{{ cdd or '' }}" style="flex: 1;">
+        </div>
+    
+        <div style="display: flex; gap: 13px; flex-wrap: wrap; align-items: center;">
+            <select name="tipo" class="js-choice">
+                <option value="todos" {% if tipo=='todos' %}selected{% endif %}>Todos os tipos</option>
+                <option value="livro" {% if tipo=='livro' %}selected{% endif %}>Livros</option>
+                <option value="revista" {% if tipo=='revista' %}selected{% endif %}>Revistas</option>
+                <option value="enciclopedia" {% if tipo=='enciclopedia' %}selected{% endif %}>Enciclopédias</option>
+                <option value="dicionario" {% if tipo=='dicionario' %}selected{% endif %}>Dicionários</option>
+                <option value="jornal" {% if tipo=='jornal' %}selected{% endif %}>Jornais</option>
+                <option value="gibi" {% if tipo=='gibi' %}selected{% endif %}>Gibis</option>
+                <option value="livrodidatico" {% if tipo=='livrodidatico' %}selected{% endif %}>Livros Didáticos</option>
+            </select>
+    
+            <select name="idioma" class="js-choice">
+                <option value="todos" {% if idioma=='todos' %}selected{% endif %}>Qualquer idioma</option>
+                <option value="pt" {% if idioma=='pt' %}selected{% endif %}>Português</option>
+                <option value="en" {% if idioma=='en' %}selected{% endif %}>Inglês</option>
+                <option value="es" {% if idioma=='es' %}selected{% endif %}>Espanhol</option>
+                <option value="it" {% if idioma=='it' %}selected{% endif %}>Italiano</option>
+                <option value="fr" {% if idioma=='fr' %}selected{% endif %}>Francês</option>
+                <option value="al" {% if idioma=='al' %}selected{% endif %}>Alemão</option>
+                <option value="la" {% if idioma=='la' %}selected{% endif %}>Latim</option>
+                <option value="ou" {% if idioma=='ou' %}selected{% endif %}>Outros</option>
+            </select>
+    
+            <select name="situacao" class="js-choice">
+                <option value="todos" {% if situacao=='todos' %}selected{% endif %}>Qualquer situação</option>
+                <option value="disponivel" {% if situacao=='disponivel' %}selected{% endif %}>Disponível</option>
+                <option value="emprestado" {% if situacao=='emprestado' %}selected{% endif %}>Emprestado</option>
+                <option value="reserva" {% if situacao=='reserva' %}selected{% endif %}>Reserva Técnica</option>
+            </select>
+    
+            <button type="submit"
+                style="background: #3A853D; color: white; border: none; padding: 9px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+            </button>
+        </div>
     </form>
 
-    <!-- Tabela de Resultados -->
     <div class="entry">
-        <table class='tabelalarga'>
+        <table class="tabelalarga" style="width: 100%; border-collapse: collapse;">
             <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>Obra</th>
-                    <th>Idioma</th>
-                    <th>Código</th>
-                    <th>Situação</th>
-                    <!-- Coluna de Ações visível apenas para Admin -->
+                <tr style="background: #f2f2f2;">
                     {% if session.get('usuario_logado') %}
-                    <th>Ações</th>
+                    <th class="col-acoes">Ações</th>
                     {% endif %}
+                    <th class="col-tipo">Tipo</th>
+                    <th class="col-obra">Obra</th>
+                    <th class="col-idioma">Idioma</th>
+                    <th class="col-codigo">Código</th>
+                    <th class="col-cdd">CDD</th>
+                    <th class="col-situacao">Situação</th>
+                    <th class="col-estante">Estante</th>
+                    <th class="col-letra">Letra</th>
                 </tr>
             </thead>
             <tbody>
                 {% for obra in obras %}
-                <tr>
-                    <td>{{ obra['tipo']|capitalize }}</td>
-                    <td>
+                <tr style="border-bottom: 1px solid #eee;">
+                    {% if session.get('usuario_logado') %}
+                    <td style="padding: 10px; white-space: nowrap; align-items: center; justify-content: center;">
+                        <a href="{{ url_for('editar', id=obra['id']) }}" title="Editar"
+                            style="color: #333; margin-right: 10px;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="{{ url_for('excluir', id=obra['id']) }}" title="Excluir" style="color: #d9534f;"
+                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+
+                    <td style="padding: 10px;">
+                        {{ tipo.get(obra['tipo'], obra['tipo']|capitalize) }}
+                    </td>
+                    <td style="padding: 10px;">
                         <strong>{{ obra['titulo'] }}</strong><br>
-                        <small>{{ obra['autor'] }}</small>
+                        <small style="color: #666;">{{ obra['autor'] }}</small>
                     </td>
-                    <td>{{ obra['idioma']|capitalize }}</td>
-                    <td style="font-family: monospace; font-weight: bold; color: #006600;">{{ obra['cod_chamada'] }}
+                    <td style="padding: 10px; text-align: center; font-weight: 500;">
+                        {{ obra['idioma']|upper }}
                     </td>
-                    <td>
+                    <td style="padding: 10px; text-align: center; font-family: monospace; font-weight: bold;">{{ obra['cod_chamada'] }}</td>
+                    <td style="padding: 10px; text-align: center; font-weight: bold;">{{ obra['cdd'] or '-' }}</td>
+                    <td style="padding: 10px; text-align: center;">
                         {% if obra['situacao'] == 'disponivel' %}
                         <span style="color: green; font-weight: bold;">Disponível</span>
                         {% elif obra['situacao'] == 'emprestado' %}
@@ -82,24 +109,13 @@
                         <span style="color: grey;">{{ obra['situacao']|capitalize }}</span>
                         {% endif %}
                     </td>
-
-                    <!-- Botões visíveis apenas para Admin -->
-                    {% if session.get('usuario_logado') %}
-                    <td>
-                        <a href="{{ url_for('editar', id=obra['id']) }}" title="Editar" style="color: #333333af; margin-right: 10px;">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-                    
-                        <a href="{{ url_for('excluir', id=obra['id']) }}" title="Excluir" style="color:#333333af ;"
-                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                    </td>
-                    {% endif %}
+                    <td style="padding: 10px; text-align: center;">{{ obra['estante'] or '-' }}</td>
+                    <td style="padding: 10px; text-align: center;">{{ obra['letra'] or '-' }}</td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="{% if session.get('usuario_logado') %}6{% else %}5{% endif %}" class="tabela-vazia">
+                    <td colspan="{% if session.get('usuario_logado') %}9{% else %}8{% endif %}"
+                        style="text-align: center; padding: 20px;">
                         Nenhum livro encontrado.
                     </td>
                 </tr>
@@ -108,32 +124,24 @@
         </table>
     </div>
 
-    <!-- Bloco de Paginação -->
     {% if total_paginas > 1 %}
     <div style="margin-top: 20px; text-align: center; padding-top: 10px;">
-    
         {% if pagina_atual > 1 %}
         <a href="{{ url_for('index', page=pagina_atual-1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"
-            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-right: 5px; border: 1px solid #ddd;">
+            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-right: 5px; border: 1px solid #ddd; text-decoration: none;">
             &laquo; Anterior
         </a>
         {% endif %}
-    
         <span style="font-weight: bold; margin: 0 10px; color: #3A853D;">
             Página {{ pagina_atual }} de {{ total_paginas }}
         </span>
-    
         {% if pagina_atual < total_paginas %} <a
             href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"
-            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-left: 5px; border: 1px solid #ddd;">
+            style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-left: 5px; border: 1px solid #ddd; text-decoration: none;">
             Próximo &raquo;
             </a>
             {% endif %}
-    
     </div>
     {% endif %}
-
 </div>
-
-
 {% endblock %}

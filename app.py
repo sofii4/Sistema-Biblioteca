@@ -1,7 +1,7 @@
 import os
 import sys
 import psycopg2
-from psycopg2.extras import RealDictCursor # Retornar resultados como dicionários
+from psycopg2.extras import RealDictCursor
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
 
@@ -9,23 +9,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Configurações básicas
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')
 DATABASE_URL = os.environ.get('DATABASE_URL')
 SENHA_RECEPCAO = os.environ.get('SENHA_RECEPCAO', 'admin123') 
 
-
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
-    cursor = conn.cursor(cursor_factory=RealDictCursor) #Retorna como dicionário
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     return conn, cursor 
-
 
 def init_db():
     conn = None
     try:
-        
         conn, cursor = get_db_connection()
+
+        cursor.execute('CREATE EXTENSION IF NOT EXISTS unaccent;')
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS obras (
                 id SERIAL PRIMARY KEY,
@@ -33,24 +31,34 @@ def init_db():
                 autor TEXT NOT NULL,
                 tipo TEXT,
                 idioma TEXT,
-                cod_chamada TEXT,
+                cod_chamada TEXT UNIQUE, -- Código de chamada deve ser único
                 situacao TEXT DEFAULT 'disponivel',
+                estante TEXT,
+                letra TEXT,
+                cdd TEXT,
                 data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         conn.commit()
         print("--- Tabela 'obras' verificada/criada com sucesso no PostgreSQL ---")
-
     except psycopg2.Error as e:
         print(f"Erro ao inicializar o banco de dados: {e}")
-
     finally:
         if conn:
             conn.close()
 
+TIPOS_LABELS = {
+    'livro': 'Livro',
+    'revista': 'Revista',
+    'enciclopedia': 'Enciclopédia',
+    'dicionario': 'Dicionário',
+    'jornal': 'Jornal',
+    'gibi': 'Gibi',
+    'livrodidatico': 'Livro Didático'
+}
+
 @app.route('/')
 def index():
-    # Paginação
     ITENS_POR_PAGINA = 7 
     pagina = request.args.get('page', 1, type=int)
     offset = (pagina - 1) * ITENS_POR_PAGINA 
@@ -60,13 +68,17 @@ def index():
     tipo = request.args.get('tipo', 'todos')
     idioma = request.args.get('idioma', 'todos') 
     situacao = request.args.get('situacao', 'todos')
-    cod_chamada = request.args.get('cod_chamada', '').strip() 
+    cod_chamada = request.args.get('cod_chamada', '').strip()
+    cdd = request.args.get('cdd', '').strip()
+    estante = request.args.get('estante', '').strip()
+    letra = request.args.get('letra', '').strip()
+
     query_base = "FROM obras WHERE 1=1"
     params = []
 
     if q:
-        # ILIKE para busca case-insensitive
-        query_base += " AND (titulo ILIKE %s OR autor ILIKE %s)" 
+        # unaccent remove acentos do banco e da busca; ILIKE garante o case-insensitive
+        query_base += " AND (unaccent(titulo) ILIKE unaccent(%s) OR unaccent(autor) ILIKE unaccent(%s))" 
         params.append(f'%{q}%')
         params.append(f'%{q}%')
     
@@ -83,9 +95,20 @@ def index():
         params.append(situacao)
 
     if cod_chamada:
-        query_base += " AND (cod_chamada = %s OR cod_chamada LIKE %s)"
-        params.append(cod_chamada)
-        params.append(f'{cod_chamada}%')
+        query_base += " AND cod_chamada ILIKE %s"
+        params.append(f'%{cod_chamada}%')
+
+    if cdd:
+        query_base += " AND cdd ILIKE %s"
+        params.append(f'%{cdd}%')
+
+    if estante:
+        query_base += " AND estante = %s"
+        params.append(estante)
+
+    if letra:
+        query_base += " AND letra ILIKE %s"
+        params.append(f'%{letra}%')
     
     conn = None
     try:
@@ -94,32 +117,23 @@ def index():
         total_obras = cursor.fetchone()['count']
         total_paginas = (total_obras + ITENS_POR_PAGINA - 1) // ITENS_POR_PAGINA
 
-        # Query Final com paginação
         query_final = f"SELECT * {query_base} ORDER BY titulo ASC LIMIT %s OFFSET %s" 
-        params.append(ITENS_POR_PAGINA)
-        params.append(offset)
+        temp_params = params + [ITENS_POR_PAGINA, offset]
         
-        cursor.execute(query_final, params)
+        cursor.execute(query_final, temp_params)
         obras = cursor.fetchall()
-        
     except psycopg2.Error as e:
         print(f"Erro na rota index: {e}")
         obras = []
         total_paginas = 0
-
     finally:
         if conn:
             conn.close()
 
     return render_template('index.html', 
-                            obras=obras, 
-                            pagina_atual=pagina, 
-                            total_paginas=total_paginas,
-                            q=q,
-                            tipo=tipo,
-                            idioma=idioma,
-                            situacao=situacao,
-                            cod_chamada=cod_chamada)
+                            obras=obras, pagina_atual=pagina, total_paginas=total_paginas,
+                            q=q, tipo=TIPOS_LABELS, idioma=idioma, situacao=situacao, 
+                            cod_chamada=cod_chamada, cdd=cdd, estante=estante, letra=letra)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -138,58 +152,53 @@ def admin():
         return redirect(url_for('login'))
     
     mensagem = None
-    dados_formulario = {} 
+    dados_formulario = {}
 
     if request.method == 'POST':
-        # Captura todos os campos, inclusive os novos
-        titulo = request.form.get('titulo') 
+        titulo = request.form.get('titulo')
         autor = request.form.get('autor')
         tipo = request.form.get('tipo')
         idioma = request.form.get('idioma')
+        situacao = request.form.get('situacao')
         cod_chamada = request.form.get('cod_chamada')
+        estante = request.form.get('estante')
+        letra = request.form.get('letra', '').strip()
+        cdd = request.form.get('cdd')
 
-        # Guarda os dados para devolver ao form caso haja erro (evita apagar tudo)
         dados_formulario = {
-            'titulo': titulo,
-            'autor': autor,
-            'tipo': tipo,
-            'idioma': idioma,
-            'cod_chamada': cod_chamada
+            'titulo': titulo, 'autor': autor, 'tipo': tipo, 
+            'idioma': idioma, 'situacao': situacao, 'cod_chamada': cod_chamada, 
+            'estante': estante, 'letra': letra, 'cdd': cdd
         }
 
-        # Verifica se os campos obrigatórios foram preenchidos
-        if titulo and autor and cod_chamada:
+        # Validação: Letra deve ser apenas alfabética
+        if letra and not letra.isalpha():
+            mensagem = "Erro: O campo 'Letra' deve conter apenas letras (A-Z)."
+        elif titulo and autor and cod_chamada:
             conn = None
             try:
                 conn, cursor = get_db_connection()
-                # Verifica duplicidade
-                cursor.execute(
-                    'SELECT id FROM obras WHERE cod_chamada = %s', 
-                    (cod_chamada,)
-                )
-                livro_existente = cursor.fetchone() 
-
-                if livro_existente:
-                    mensagem = f"Erro: O código '{cod_chamada}' já está em uso por outro livro!"
+                cursor.execute('SELECT id FROM obras WHERE cod_chamada = %s', (cod_chamada,))
+                if cursor.fetchone():
+                    mensagem = f"Erro: O código de chamada '{cod_chamada}' já está em uso!"
                 else:
-                    # Incluindo explicitamente todos os campos no INSERT
                     cursor.execute(
-                        '''INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada, situacao) 
-                           VALUES (%s, %s, %s, %s, %s, %s)''',
-                        (titulo, autor, tipo, idioma, cod_chamada, 'disponivel')
+                        '''INSERT INTO obras (titulo, autor, tipo, idioma, cod_chamada, situacao, estante, letra, cdd) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                        (titulo, autor, tipo, idioma, cod_chamada, situacao, estante, letra.upper(), cdd)
                     )
                     conn.commit()
-                    mensagem = "Sucesso: Obra adicionada ao acervo!"
-                    dados_formulario = {} # Limpa o formulário após o sucesso
-            except psycopg2.Error as e:
-                mensagem = f"Erro ao adicionar obra: {e}"
+                    mensagem = "Sucesso: Obra cadastrada com sucesso!"
+                    dados_formulario = {} 
+            except Exception as e:
+                mensagem = f"Erro no banco de dados: {e}"
             finally:
-                if conn:
-                    conn.close()
+                if conn: conn.close()
         else:
-            mensagem = "Erro: Título, Autor e Código de Chamada são obrigatórios."
+            mensagem = "Erro: Título, Autor e Código são obrigatórios."
 
-    return render_template('admin.html', mensagem=mensagem, dados=dados_formulario or {})
+    return render_template('admin.html', mensagem=mensagem, dados=dados_formulario)
+
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST']) 
 def editar(id):
@@ -210,41 +219,36 @@ def editar(id):
             idioma = request.form.get('idioma')
             cod_chamada = request.form.get('cod_chamada')
             situacao = request.form.get('situacao')
+            estante = request.form.get('estante')
+            letra = request.form.get('letra', '').strip()
+            cdd = request.form.get('cdd')
 
-            # Verifica duplicidade do código de chamada 
-            cursor.execute(
-                'SELECT id FROM obras WHERE cod_chamada = %s AND id != %s',
-                (cod_chamada, id)
-            )
-            livro_existente = cursor.fetchone()
-
-            if livro_existente:
-                mensagem = f"Erro: O código '{cod_chamada}' já está sendo usado por outro livro!"
-                obra = {
-                    'id': id, 'titulo': titulo, 'autor': autor, 
-                    'tipo': tipo, 'idioma': idioma, 
-                    'cod_chamada': cod_chamada, 'situacao': situacao
-                }
+            if letra and not letra.isalpha():
+                mensagem = "Erro: O campo 'Letra' deve conter apenas letras."
+                # Recarrega os dados para não perder o que foi digitado
+                obra = {'id': id, 'titulo': titulo, 'autor': autor, 'tipo': tipo, 'idioma': idioma, 
+                        'cod_chamada': cod_chamada, 'situacao': situacao, 'estante': estante, 'letra': letra, 'cdd': cdd}
             else:
-                cursor.execute(
-                    '''
-                    UPDATE obras 
-                    SET titulo=%s, autor=%s, tipo=%s, idioma=%s, cod_chamada=%s, situacao=%s
-                    WHERE id=%s
-                    ''',
-                    (titulo, autor, tipo, idioma, cod_chamada, situacao, id)
-                )
-                conn.commit()
-                return redirect(url_for('index')) 
+                cursor.execute('SELECT id FROM obras WHERE cod_chamada = %s AND id != %s', (cod_chamada, id))
+                if cursor.fetchone():
+                    mensagem = f"Erro: O código '{cod_chamada}' já está sendo usado!"
+                    obra = {'id': id, 'titulo': titulo, 'autor': autor, 'tipo': tipo, 'idioma': idioma, 
+                            'cod_chamada': cod_chamada, 'situacao': situacao, 'estante': estante, 'letra': letra, 'cdd': cdd}
+                else:
+                    cursor.execute(
+                        '''UPDATE obras SET titulo=%s, autor=%s, tipo=%s, idioma=%s, cod_chamada=%s, situacao=%s, estante=%s, letra=%s, cdd=%s
+                        WHERE id=%s''',
+                        (titulo, autor, tipo, idioma, cod_chamada, situacao, estante, letra.upper(), cdd, id)
+                    )
+                    conn.commit()
+                    return redirect(url_for('index')) 
         
         if obra is None:
             cursor.execute('SELECT * FROM obras WHERE id = %s', (id,)) 
             obra = cursor.fetchone()
             
     except psycopg2.Error as e:
-        print(f"Erro na rota editar: {e}")
         mensagem = f"Erro de banco de dados: {e}"
-
     finally:
         if conn:
             conn.close()

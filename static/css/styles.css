@@ -35,13 +35,13 @@ a:hover {
 }
 
 #headerimg {
-    width: 1024px;
+    width: 1200px;
     height: 100%;
     position: relative;
     background-image: url("../img/img_prefeitura_header.png");
     background-repeat: no-repeat;
     background-position: center;
-    background-size: contain;
+    background-size: cover;
 }
 
 #headerimg img {
@@ -92,7 +92,7 @@ a:hover {
 }
 
 #container {
-    width: 1024px;
+    width: 1200px;
     max-width: 100%;
     margin: 20px auto;
     display: flex;
@@ -204,14 +204,12 @@ button[type="submit"]:hover {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    table-layout: fixed;
 }
 
 .tabelalarga thead th {
     background-color: #3A853D;
     color: white;
     padding: 10px;
-    text-align: left;
     white-space: nowrap;
 }
 
@@ -223,48 +221,52 @@ button[type="submit"]:hover {
     overflow-wrap: break-word;
 }
 
-.tabelalarga th:nth-child(1),
-.tabelalarga td:nth-child(1) {
-    width: 10%;
+/* Definição por classes para não quebrar no Admin */
+.col-acoes {
+    width: 80px;
     text-align: center;
 }
 
-.tabelalarga th:nth-child(2),
-.tabelalarga td:nth-child(2) {
-    width: 32%;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+.col-tipo {
+    width: 100px;
     text-align: left;
 }
 
-.tabelalarga th:nth-child(3),
-.tabelalarga td:nth-child(3) {
-    width: 8%;
+.col-obra {
+    width: auto;
+    min-width: 200px;
+    text-align: left;
+}
+
+/* A obra ocupa o espaço que sobrar */
+.col-idioma {
+    width: 70px;
     text-align: center;
 }
 
-.tabelalarga th:nth-child(4),
-.tabelalarga td:nth-child(4) {
-    width: 12%;
+.col-codigo {
+    width: 90px;
     text-align: center;
 }
 
-.tabelalarga th:nth-child(5),
-.tabelalarga td:nth-child(5) {
-    width: 15%;
+.col-cdd {
+    width: 80px;
     text-align: center;
 }
 
-.tabelalarga th:nth-child(6),
-.tabelalarga td:nth-child(6) {
-    width: 12%;
-    /*white-space: nowrap;*/
+.col-situacao {
+    width: 120px;
     text-align: center;
 }
 
-.tabelalarga tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+.col-estante {
+    width: 80px;
+    text-align: center;
+}
+
+.col-letra {
+    width: 60px;
+    text-align: center;
 }
 
 .tabela-vazia {
@@ -380,6 +382,7 @@ input:focus{
 
 .choices{
     margin-bottom: 15px !important;
+    width: 100% !important;
 }
 
 .choices__inner {
@@ -415,7 +418,6 @@ input:focus{
     color: #1b5e20 !important;
 }
 
-
 /* MENU */
 .widget ul li a i {
     margin-right: 10px;
@@ -428,3 +430,74 @@ input:focus{
     background-color: #fff3cd;
 }
 
+
+
+input[type="number"],
+input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* Garante que o padding não aumente a largura */
+}
+
+/* Destaque para o CDD na tabela */
+code {
+    font-family: monospace;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+
+
+/* Apenas dentro da barra de busca os selects dividem o espaço */
+form[action="/"] .choices {
+    width: 32% !important;
+}
+
+@media (max-width: 768px) {
+
+    /* No celular, até os da busca ocupam 100% */
+    form[action="/"] .choices {
+        width: 100% !important;
+    }
+}
+
+/* --- RESPONSIVIDADE GENÉRICA DE LINHAS --- */
+
+.input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Faz com que todos os inputs ou containers dentro da linha tenham flexibilidade */
+.input-row>div,
+.input-row>input {
+    flex: 1;
+    min-width: 0;
+    /* Evita que o flexbox quebre */
+}
+
+/* Mantém o comportamento de destaque apenas na busca do index se necessário */
+.search-row input[name="q"] {
+    flex: 0 0 65% !important;
+}
+
+@media (max-width: 768px) {
+    .input-row {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+
+    /* FORÇA 100% em TODOS os filhos da linha no mobile */
+    .input-row>div,
+    .input-row input,
+    .input-row select,
+    .input-row .choices {
+        width: 100% !important;
+        flex: none !important;
+        margin-left: 0 !important;
+    }
+}
