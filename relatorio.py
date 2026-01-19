@@ -28,9 +28,7 @@ tab_geral, tab_disp, tab_emp, tab_res, tab_ext = st.tabs([
     "⚠️ Extraviados"
 ])
 
-# ===================================================
 # ABA 1: VISÃO GERAL (Gráficos e PDF)
-# ===================================================
 with tab_geral:
     st.markdown("### Resumo dos Indicadores")
     
@@ -60,7 +58,7 @@ with tab_geral:
         st.write("**Status do Acervo**")
         st.bar_chart(df['situacao'].value_counts(), color="#ffaa00")
 
-    # --- FUNÇÃO DO PDF (Mantida a versão resumida e bonita) ---
+    # Função para gerar PDF
     def gerar_pdf_resumo(dataframe):
         pdf = FPDF()
         pdf.add_page()
@@ -107,39 +105,31 @@ with tab_geral:
     except Exception as e:
         st.error(f"Erro ao gerar PDF: {e}")
 
-# ===================================================
+
 # CONFIGURAÇÃO COMUM DAS TABELAS
-# ===================================================
-# Colunas que queremos mostrar nas listas (para não ficar poluído)
 colunas_visiveis = ['titulo', 'autor', 'cod_chamada', 'tipo', 'estante', 'cdd']
 
-# ===================================================
+
 # ABA 2: DISPONÍVEIS
-# ===================================================
 with tab_disp:
     st.header(f"Livros Disponíveis ({disponiveis})")
     df_disp = df[df['situacao'] == 'disponivel'][colunas_visiveis]
     st.dataframe(df_disp, use_container_width=True, hide_index=True)
 
-# ===================================================
+
 # ABA 3: EMPRESTADOS
-# ===================================================
 with tab_emp:
     st.header(f"Livros Emprestados ({emprestados})")
     df_emp = df[df['situacao'] == 'emprestado'][colunas_visiveis]
     st.dataframe(df_emp, use_container_width=True, hide_index=True)
 
-# ===================================================
 # ABA 4: RESERVA TÉCNICA
-# ===================================================
 with tab_res:
     st.header(f"Reserva Técnica ({reserva})")
     df_res = df[df['situacao'] == 'reserva'][colunas_visiveis]
     st.dataframe(df_res, use_container_width=True, hide_index=True)
 
-# ===================================================
 # ABA 5: EXTRAVIADOS
-# ===================================================
 with tab_ext:
     st.header(f"Livros Extraviados ({extraviados})")
     if extraviados > 0:
