@@ -14,7 +14,7 @@
             <input type="text" name="estante" placeholder="Estante" value="{{ estante or '' }}" style="flex: 1;">
             <input type="text" name="letra" placeholder="Letra" value="{{ letra or '' }}" style="flex: 1;">
 
-            <input type="text" name="cdd" placeholder="Filtrar por CDD" value="{{ cdd or '' }}" style="flex: 1;">
+            <input type="text" name="cdd" placeholder="CDD" value="{{ cdd or '' }}" style="flex: 1;">
         </div>
     
         <div style="display: flex; gap: 13px; flex-wrap: wrap; align-items: center;">
@@ -89,7 +89,7 @@
                     {% endif %}
 
                     <td style="padding: 10px;">
-                        {{ tipo.get(obra['tipo'], obra['tipo']|capitalize) }}
+                        {{ tipos_labels.get(obra['tipo'], obra['tipo']|capitalize) }}
                     </td>
                     <td style="padding: 10px;">
                         <strong>{{ obra['titulo'] }}</strong><br>
@@ -136,7 +136,7 @@
             Página {{ pagina_atual }} de {{ total_paginas }}
         </span>
         {% if pagina_atual < total_paginas %} <a
-            href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada) }}"
+            href="{{ url_for('index', page=pagina_atual+1, q=q, tipo=tipo, idioma=idioma, situacao=situacao, cod_chamada=cod_chamada, cdd=cdd, estante=estante, letra=letra) }}"
             style="padding: 8px 15px; background: #eee; color: #333; border-radius: 4px; margin-left: 5px; border: 1px solid #ddd; text-decoration: none;">
             Próximo &raquo;
             </a>

@@ -221,7 +221,7 @@ button[type="submit"]:hover {
     overflow-wrap: break-word;
 }
 
-/* Definição por classes para não quebrar no Admin */
+
 .col-acoes {
     width: 80px;
     text-align: center;
@@ -238,7 +238,6 @@ button[type="submit"]:hover {
     text-align: left;
 }
 
-/* A obra ocupa o espaço que sobrar */
 .col-idioma {
     width: 70px;
     text-align: center;
@@ -430,39 +429,23 @@ input:focus{
     background-color: #fff3cd;
 }
 
-
-
 input[type="number"],
 input[type="text"] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    /* Garante que o padding não aumente a largura */
 }
 
-/* Destaque para o CDD na tabela */
-code {
-    font-family: monospace;
-    color: #2c3e50;
-    font-weight: bold;
-}
-
-
-
-/* Apenas dentro da barra de busca os selects dividem o espaço */
 form[action="/"] .choices {
     width: 32% !important;
 }
 
 @media (max-width: 768px) {
 
-    /* No celular, até os da busca ocupam 100% */
     form[action="/"] .choices {
         width: 100% !important;
     }
 }
-
-/* --- RESPONSIVIDADE GENÉRICA DE LINHAS --- */
 
 .input-row {
     display: flex;
@@ -472,15 +455,12 @@ form[action="/"] .choices {
     box-sizing: border-box;
 }
 
-/* Faz com que todos os inputs ou containers dentro da linha tenham flexibilidade */
 .input-row>div,
 .input-row>input {
     flex: 1;
     min-width: 0;
-    /* Evita que o flexbox quebre */
 }
 
-/* Mantém o comportamento de destaque apenas na busca do index se necessário */
 .search-row input[name="q"] {
     flex: 0 0 65% !important;
 }
@@ -491,7 +471,6 @@ form[action="/"] .choices {
         gap: 10px;
     }
 
-    /* FORÇA 100% em TODOS os filhos da linha no mobile */
     .input-row>div,
     .input-row input,
     .input-row select,

@@ -31,7 +31,7 @@ def init_db():
                 autor TEXT NOT NULL,
                 tipo TEXT,
                 idioma TEXT,
-                cod_chamada TEXT UNIQUE, -- Código de chamada deve ser único
+                cod_chamada TEXT UNIQUE,
                 situacao TEXT DEFAULT 'disponivel',
                 estante TEXT,
                 letra TEXT,
@@ -131,9 +131,20 @@ def index():
             conn.close()
 
     return render_template('index.html', 
-                            obras=obras, pagina_atual=pagina, total_paginas=total_paginas,
-                            q=q, tipo=TIPOS_LABELS, idioma=idioma, situacao=situacao, 
-                            cod_chamada=cod_chamada, cdd=cdd, estante=estante, letra=letra)
+                            obras=obras, 
+                            pagina_atual=pagina, 
+                            total_paginas=total_paginas,
+                            # Passe os valores selecionados pelo usuário
+                            q=q, 
+                            tipo=tipo, 
+                            idioma=idioma, 
+                            situacao=situacao, 
+                            cod_chamada=cod_chamada, 
+                            cdd=cdd, 
+                            estante=estante, 
+                            letra=letra,
+                            # Passe o dicionário de legendas com um nome diferente
+                            tipos_labels=TIPOS_LABELS)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -171,7 +182,6 @@ def admin():
             'estante': estante, 'letra': letra, 'cdd': cdd
         }
 
-        # Validação: Letra deve ser apenas alfabética
         if letra and not letra.isalpha():
             mensagem = "Erro: O campo 'Letra' deve conter apenas letras (A-Z)."
         elif titulo and autor and cod_chamada:
