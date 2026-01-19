@@ -12,7 +12,7 @@ st.set_page_config(page_title="Relatório do Acervo", layout="wide")
 # Conexão com o banco
 engine = create_engine(os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://"))
 
-st.title("📊 Relatório Gerencial da Biblioteca")
+st.title("📊 Relatório Geral de Acervos")
 st.markdown("---")
 
 # Busca os dados
@@ -37,7 +37,6 @@ st.markdown("### Análise por Categoria")
 c1, c2 = st.columns(2)
 
 with c1:
-    # Gráfico de barras por tipo (Linguagem Python pura, visual Streamlit)
     st.bar_chart(df['tipo'].value_counts())
 
 with c2:
